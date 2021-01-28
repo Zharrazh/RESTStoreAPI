@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using RESTStoreAPI.Config.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,9 @@ namespace RESTStoreAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var authConfig = Configuration.GetSection("Auth").Get<AuthConfigModel>();
+            var connectionString = Configuration.GetSection("Connections").GetValue<string>("Default");
+
             services.AddControllers();
         }
 
