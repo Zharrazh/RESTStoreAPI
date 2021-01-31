@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace RESTStoreAPI.Services
 {
-    interface IPasswordService
+    public interface IPasswordService
     {
         public string SaltHash(string password);
         public bool VerifyPassword(string hash, string password);
