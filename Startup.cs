@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using RESTStoreAPI.Config.Models;
 using RESTStoreAPI.Data;
 using RESTStoreAPI.Services;
+using RESTStoreAPI.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,9 +60,7 @@ namespace RESTStoreAPI
 
             services.AddSingleton<IHashService, HashService>();
             services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));
-            services.AddSingleton<IRoleService, RoleService>();
             services.AddSingleton<IAuthService, AuthService>();
-            services.AddTransient<IUserService, UserService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

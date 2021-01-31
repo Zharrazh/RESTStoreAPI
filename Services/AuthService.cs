@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using RESTStoreAPI.Config.Models;
 using RESTStoreAPI.Data.DbModels;
+using RESTStoreAPI.Utils;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,11 +19,9 @@ namespace RESTStoreAPI.Services
     }
     public class AuthService : IAuthService
     {
-        private readonly IRoleService roleService;
         private readonly AuthConfigModel authConfig;
-        public AuthService(IRoleService roleService, IConfiguration configuration)
+        public AuthService(IConfiguration configuration)
         {
-            this.roleService = roleService;
             authConfig = configuration.GetSection("Auth").Get<AuthConfigModel>();
         }
 
@@ -50,12 +49,12 @@ namespace RESTStoreAPI.Services
                 Name = userDbModel.Name,
                 Expires = expires,
                 IsAdmin = userDbModel.Roles.Contains("a"),
-                Roles = roleService.GetRoleList(userDbModel.Roles),
+                Roles = RoleUtils.GetRoleList(userDbModel.Roles),
                 Token = tokenStr
             };
         }
 
-        private ClaimsIdentity GetClaimsIdentity (UserDbModel user)
+        private static ClaimsIdentity GetClaimsIdentity (UserDbModel user)
         {
             var claims = new List<Claim>
             {
@@ -64,7 +63,7 @@ namespace RESTStoreAPI.Services
                 new Claim(ClaimTypes.GivenName, user.Name)
             };
 
-            List<string> roleNames = roleService.GetRoleList(user.Roles);
+            List<string> roleNames = RoleUtils.GetRoleList(user.Roles);
 
             foreach (var role in roleNames)
                 claims.Add(new Claim(ClaimTypes.Role, role));
