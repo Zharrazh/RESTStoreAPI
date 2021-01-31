@@ -14,7 +14,7 @@ namespace RESTStoreAPI.Services
 {
     public interface IAuthService
     {
-        string GetToken(UserDbModel userDbModel);
+        TokenInfo GetToken(UserDbModel userDbModel);
     }
     public class AuthService : IAuthService
     {
@@ -26,20 +26,33 @@ namespace RESTStoreAPI.Services
             authConfig = configuration.GetSection("Auth").Get<AuthConfigModel>();
         }
 
-        public string GetToken(UserDbModel userDbModel)
+        public TokenInfo GetToken(UserDbModel userDbModel)
         {
             var handler = new JwtSecurityTokenHandler();
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authConfig.Key));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+
             var claimsIdentity = GetClaimsIdentity(userDbModel);
+            var expires = DateTime.UtcNow.AddMinutes(authConfig.Expires);
 
             var token = handler.CreateJwtSecurityToken(subject: claimsIdentity,
                 signingCredentials: signingCredentials,
                 audience: authConfig.Audience,
                 issuer: authConfig.Issuer,
-                expires: DateTime.UtcNow.AddMinutes(authConfig.Expires));
+                expires: expires);
 
-            return handler.WriteToken(token);
+            string tokenStr = handler.WriteToken(token);
+
+            return new TokenInfo
+            {
+                Id = userDbModel.Id,
+                Login = userDbModel.Login,
+                Name = userDbModel.Name,
+                Expires = expires,
+                IsAdmin = userDbModel.Roles.Contains("a"),
+                Roles = roleService.GetRoleList(userDbModel.Roles),
+                Token = tokenStr
+            };
         }
 
         private ClaimsIdentity GetClaimsIdentity (UserDbModel user)
@@ -58,5 +71,16 @@ namespace RESTStoreAPI.Services
 
             return new ClaimsIdentity(claims);
         }
+    }
+
+    public class TokenInfo
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Login { get; set; }
+        public List<string> Roles { get; set; }
+        public bool IsAdmin { get; set; }
+        public string Token { get; set; }
+        public DateTime Expires { get; set; }
     }
 }

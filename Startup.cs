@@ -59,6 +59,9 @@ namespace RESTStoreAPI
 
             services.AddSingleton<IHashService, HashService>();
             services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));
+            services.AddSingleton<IRoleService, RoleService>();
+            services.AddSingleton<IAuthService, AuthService>();
+            services.AddTransient<IUserService, UserService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
