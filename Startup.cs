@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using RESTStoreAPI.Config.Models;
 using RESTStoreAPI.Data;
+using RESTStoreAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +56,9 @@ namespace RESTStoreAPI
             services.AddDbContext<DatabaseContext>(options => options.UseSqlite(connectionString));
 
             services.AddControllers();
+
+            services.AddSingleton<IHashService, HashService>();
+            services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
