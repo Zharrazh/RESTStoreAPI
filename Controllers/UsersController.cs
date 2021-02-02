@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RESTStoreAPI.Data;
 using RESTStoreAPI.Models.Common.User;
+using RESTStoreAPI.Models.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace RESTStoreAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = RoleConstants.AdminRoleName )]
         [ProducesResponseType(typeof(List<UserFullInfo>), StatusCodes.Status100Continue)]
         public IActionResult Get()
         {
