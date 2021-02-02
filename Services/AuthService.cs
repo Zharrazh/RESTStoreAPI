@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RESTStoreAPI.Config.Models;
+using RESTStoreAPI.Data;
 using RESTStoreAPI.Data.DbModels;
 using RESTStoreAPI.Utils;
 using System;
@@ -16,13 +19,20 @@ namespace RESTStoreAPI.Services
     public interface IAuthService
     {
         TokenInfo GetToken(UserDbModel userDbModel);
+        public Task<UserDbModel> GetAuthUserAsync();
     }
     public class AuthService : IAuthService
     {
         private readonly AuthConfigModel authConfig;
-        public AuthService(IConfiguration configuration)
+        private readonly HttpContext ctx;
+        private readonly DatabaseContext db;
+
+
+        public AuthService(IConfiguration configuration, DatabaseContext db, IHttpContextAccessor ctxAcc)
         {
             authConfig = configuration.GetSection("Auth").Get<AuthConfigModel>();
+            ctx = ctxAcc.HttpContext!;
+            this.db = db;
         }
 
         public TokenInfo GetToken(UserDbModel userDbModel)
@@ -52,6 +62,17 @@ namespace RESTStoreAPI.Services
                 Roles = RoleUtils.GetRoleList(userDbModel.Roles),
                 Token = tokenStr
             };
+        }
+
+        public async Task<UserDbModel> GetAuthUserAsync()
+        {
+            if (ctx.User?.Identity?.Name == null)
+                return null;
+            else
+            {
+                return await db.Users.FirstOrDefaultAsync(u => u.Login == ctx.User.Identity.Name);
+            }
+
         }
 
         private static ClaimsIdentity GetClaimsIdentity (UserDbModel user)
