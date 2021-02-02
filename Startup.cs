@@ -12,6 +12,8 @@ using RESTStoreAPI.Config.Models;
 using RESTStoreAPI.Data;
 using RESTStoreAPI.Models.Common;
 using RESTStoreAPI.Services;
+using Sieve.Models;
+using Sieve.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,6 +33,7 @@ namespace RESTStoreAPI
         {
             var authConfig = Configuration.GetSection("Auth").Get<AuthConfigModel>();
             var connectionString = Configuration.GetSection("Connections").GetValue<string>("Default");
+            services.Configure<SieveOptions>(Configuration.GetSection("Sieve"));
 
             services
                 .AddAuthentication(o =>
@@ -102,6 +105,7 @@ namespace RESTStoreAPI
                 };
             });
 
+            services.AddScoped<SieveProcessor>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IHashService, HashService>();
             services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));

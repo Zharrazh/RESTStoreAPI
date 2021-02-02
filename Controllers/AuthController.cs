@@ -6,7 +6,7 @@ using RESTStoreAPI.Data.DbModels;
 using RESTStoreAPI.Models.Auth.GetToken;
 using RESTStoreAPI.Models.Auth.Register;
 using RESTStoreAPI.Models.Common;
-using RESTStoreAPI.Models.Common.User;
+using RESTStoreAPI.Models.User;
 using RESTStoreAPI.Services;
 using RESTStoreAPI.Utils;
 using System;

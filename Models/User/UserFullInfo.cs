@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RESTStoreAPI.Models.Common.User
+namespace RESTStoreAPI.Models.User
 {
     public class UserFullInfo
     {
