@@ -14,5 +14,7 @@ namespace RESTStoreAPI.Models.Auth.Register
         public string Login { get; set; }
         [Required]
         public string Password { get; set; }
+
+        public bool IsAdmin { get; set; } = false;
     }
 }

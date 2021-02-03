@@ -13,7 +13,7 @@ namespace RESTStoreAPI.Setup.AutoMapper
     {
         public UserProfile()
         {
-            CreateMap<UserDbModel, UserFullInfo>().ForMember(x=>x.Roles, opt => opt.MapFrom(x => RoleUtils.GetRoleList(x.Roles)));
+            CreateMap<UserDbModel, UserFullInfoResponce>().ForMember(x=>x.Roles, opt => opt.MapFrom(x => RoleUtils.GetRoleList(x.Roles)));
         }
     }
 }

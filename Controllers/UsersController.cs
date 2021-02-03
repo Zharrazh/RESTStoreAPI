@@ -31,12 +31,12 @@ namespace RESTStoreAPI.Controllers
 
         [HttpGet]
         [Authorize(Roles = RoleConstants.AdminRoleName)]
-        [ProducesResponseType(typeof(List<UserFullInfo>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<UserFullInfoResponce>), StatusCodes.Status200OK)]
         public IActionResult Get([FromQuery]SieveModel sieveModel)
         {
             var result = db.Users.AsNoTracking();
             result = sieveProcessor.Apply(sieveModel, result);
-            return Ok(result.AsEnumerable().Select(x=>mapper.Map<UserFullInfo>(x)));
+            return Ok(result.AsEnumerable().Select(x=>mapper.Map<UserFullInfoResponce>(x)));
         }
     }
 }
