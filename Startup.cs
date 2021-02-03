@@ -34,7 +34,8 @@ namespace RESTStoreAPI
         {
             var authConfig = Configuration.GetSection("Auth").Get<AuthConfigModel>();
             var connectionString = Configuration.GetSection("Connections").GetValue<string>("Default");
-            services.Configure<SieveOptions>(Configuration.GetSection("Sieve"));
+
+            services.AddSieveStartup(Configuration.GetSection("Sieve"));
 
             services.AddAuthStartup(authConfig);
 
