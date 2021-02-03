@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,10 +21,12 @@ namespace RESTStoreAPI.Controllers
     {
         private readonly DatabaseContext db;
         private readonly ISieveProcessor sieveProcessor;
-        public UsersController(DatabaseContext db, ISieveProcessor sieveProcessor)
+        private readonly IMapper mapper;
+        public UsersController(DatabaseContext db, ISieveProcessor sieveProcessor, IMapper mapper)
         {
             this.db = db;
             this.sieveProcessor = sieveProcessor;
+            this.mapper = mapper;
         }
 
         [HttpGet]
@@ -33,7 +36,7 @@ namespace RESTStoreAPI.Controllers
         {
             var result = db.Users.AsNoTracking();
             result = sieveProcessor.Apply(sieveModel, result);
-            return Ok(result.AsEnumerable().Select(x=>x.ToFullInfo()));
+            return Ok(result.AsEnumerable().Select(x=>mapper.Map<UserFullInfo>(x)));
         }
     }
 }

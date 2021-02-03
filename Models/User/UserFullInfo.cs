@@ -17,19 +17,4 @@ namespace RESTStoreAPI.Models.User
         public DateTime Updated { get; set; }
     }
 
-    public static class UserDbModelExtention
-    {
-        public static UserFullInfo ToFullInfo(this UserDbModel userDbModel)
-        {
-            return new UserFullInfo
-            {
-                Id = userDbModel.Id,
-                Name = userDbModel.Name,
-                Login = userDbModel.Login,
-                Roles = RoleUtils.GetRoleList(userDbModel.Roles),
-                Created = userDbModel.Created,
-                Updated = userDbModel.Updated
-            };
-        }
-    }
 }

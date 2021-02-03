@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,6 +45,8 @@ namespace RESTStoreAPI
             services.AddSwaggerStartup();
 
             services.AddFixValidationStartup();
+
+            services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers();
 

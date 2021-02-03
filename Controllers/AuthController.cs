@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTStoreAPI.Data;
@@ -23,11 +24,13 @@ namespace RESTStoreAPI.Controllers
         private readonly DatabaseContext db;
         private readonly IAuthService authService;
         private readonly IPasswordService passwordService;
-        public AuthController(DatabaseContext db,  IAuthService authService, IPasswordService passwordService)
+        private readonly IMapper mapper;
+        public AuthController(DatabaseContext db,  IAuthService authService, IPasswordService passwordService, IMapper mapper)
         {
             this.db = db;
             this.authService = authService;
             this.passwordService = passwordService;
+            this.mapper = mapper;
         }
 
         [HttpPost("getToken")]
@@ -83,7 +86,7 @@ namespace RESTStoreAPI.Controllers
             await db.Users.AddAsync(newUser);
 
             await db.SaveChangesAsync();
-            return Ok(newUser.ToFullInfo());
+            return Ok(mapper.Map<UserFullInfo>(newUser));
         }
     }
 }
