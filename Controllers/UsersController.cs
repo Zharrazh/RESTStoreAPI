@@ -19,8 +19,8 @@ namespace RESTStoreAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly DatabaseContext db;
-        private readonly SieveProcessor sieveProcessor;
-        public UsersController(DatabaseContext db, SieveProcessor sieveProcessor)
+        private readonly ISieveProcessor sieveProcessor;
+        public UsersController(DatabaseContext db, ISieveProcessor sieveProcessor)
         {
             this.db = db;
             this.sieveProcessor = sieveProcessor;
@@ -28,7 +28,7 @@ namespace RESTStoreAPI.Controllers
 
         [HttpGet]
         [Authorize(Roles = RoleConstants.AdminRoleName)]
-        [ProducesResponseType(typeof(List<UserFullInfo>), StatusCodes.Status100Continue)]
+        [ProducesResponseType(typeof(List<UserFullInfo>), StatusCodes.Status200OK)]
         public IActionResult Get([FromQuery]SieveModel sieveModel)
         {
             var result = db.Users.AsNoTracking();

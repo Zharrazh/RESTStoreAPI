@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RESTStoreAPI.Models.Common;
 using RESTStoreAPI.Setup.Config.Models;
 using RESTStoreAPI.Setup.Sieve;
 using Sieve.Models;
@@ -99,6 +101,22 @@ namespace RESTStoreAPI.Setup
                 .AddScoped<ISieveCustomSortMethods, SieveCustomSortMethods>()
                 .AddScoped<ISieveCustomFilterMethods, SieveCustomFilterMethods>()
                 .AddScoped<ISieveProcessor, ApplicationSieveProcessor>();
+        }
+
+        public static IServiceCollection AddFixValidationStartup(this IServiceCollection services)
+        {
+            return services.Configure<ApiBehaviorOptions>(a =>
+            {
+                a.InvalidModelStateResponseFactory = context =>
+                {
+                    var badReqObj = new BadRequestType(context);
+
+                    return new BadRequestObjectResult(badReqObj)
+                    {
+                        ContentTypes = { "application/problem+json", "application/problem+xml" },
+                    };
+                };
+            });
         }
     }
 }

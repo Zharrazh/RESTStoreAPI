@@ -41,25 +41,14 @@ namespace RESTStoreAPI
 
             services.AddDbContext<DatabaseContext>(options => options.UseSqlite(connectionString));
 
-            services.AddControllers();
-
             services.AddSwaggerStartup();
 
-            services.Configure<ApiBehaviorOptions>(a =>
-            {
-                a.InvalidModelStateResponseFactory = context =>
-                {
-                    var badReqObj = new BadRequestType(context);
+            services.AddFixValidationStartup();
 
-                    return new BadRequestObjectResult(badReqObj)
-                    {
-                        ContentTypes = { "application/problem+json", "application/problem+xml" },
-                    };
-                };
-            });
+            services.AddControllers();
 
-            services.AddScoped<SieveProcessor>();
             services.AddHttpContextAccessor();
+
             services.AddSingleton<IHashService, HashService>();
             services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));
             services.AddScoped<IAuthService, AuthService>();
