@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using RESTStoreAPI.Config.Models;
 using RESTStoreAPI.Data;
 using RESTStoreAPI.Data.DbModels;
+using RESTStoreAPI.Setup.Config.Models;
 using RESTStoreAPI.Utils;
 using System;
 using System.Collections.Generic;

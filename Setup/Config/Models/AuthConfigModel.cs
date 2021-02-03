@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RESTStoreAPI.Config.Models
+namespace RESTStoreAPI.Setup.Config.Models
 {
     public class AuthConfigModel
     {
