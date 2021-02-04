@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTStoreAPI.Data;
+using RESTStoreAPI.Models.Common;
 using RESTStoreAPI.Models.User;
+using RESTStoreAPI.Setup.Sieve;
 using RESTStoreAPI.Utils.Constants;
 using Sieve.Models;
 using Sieve.Services;
@@ -28,15 +30,16 @@ namespace RESTStoreAPI.Controllers
             this.sieveProcessor = sieveProcessor;
             this.mapper = mapper;
         }
-
+        
         [HttpGet]
         [Authorize(Roles = RoleConstants.AdminRoleName)]
-        [ProducesResponseType(typeof(List<UserFullInfoResponce>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PageResponce<UserFullInfoResponce>), StatusCodes.Status200OK)]
         public IActionResult Get([FromQuery]SieveModel sieveModel)
         {
             var result = db.Users.AsNoTracking();
-            result = sieveProcessor.Apply(sieveModel, result);
-            return Ok(result.AsEnumerable().Select(x=>mapper.Map<UserFullInfoResponce>(x)));
+            result = sieveProcessor.ApplySorting(sieveModel, result);
+            var paginationResult = sieveProcessor.ApplyOrderingAndPagination(sieveModel, result);
+            return Ok(mapper.Map<PageResponce<UserFullInfoResponce>>(paginationResult));
         }
     }
 }
