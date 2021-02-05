@@ -36,6 +36,10 @@ namespace RESTStoreAPI
             var authConfig = Configuration.GetSection("Auth").Get<AuthConfigModel>();
             var connectionString = Configuration.GetSection("Connections").GetValue<string>("Default");
 
+            services.AddSingleton<IHashService, HashService>();
+            services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));
+            services.AddScoped<IAuthService, AuthService>();
+
             services.AddSieveStartup(Configuration.GetSection("Sieve"));
 
             services.AddAuthStartup(authConfig);
@@ -44,17 +48,15 @@ namespace RESTStoreAPI
 
             services.AddSwaggerStartup();
 
-            services.AddFixValidationStartup();
-
             services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers();
 
+            services.AddFixValidationStartup(); // After AddCotrollers!
+
             services.AddHttpContextAccessor();
 
-            services.AddSingleton<IHashService, HashService>();
-            services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));
-            services.AddScoped<IAuthService, AuthService>();
+            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

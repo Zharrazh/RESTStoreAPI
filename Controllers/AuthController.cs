@@ -64,10 +64,10 @@ namespace RESTStoreAPI.Controllers
         [ProducesResponseType(typeof (BadRequestType),StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register(RegisterRequest request, [FromServices] IAuthService authService)
         {
-            if(await db.Users.AnyAsync(x=> x.Login == request.Login)){
-                ModelState.AddModelError("login", "A user with this login already exists");
-                return BadRequest(new BadRequestType(ModelState));
-            }
+            //if(await db.Users.AnyAsync(x=> x.Login == request.Login)){
+            //    ModelState.AddModelError("login", "A user with this login already exists");
+            //    return BadRequest(new BadRequestType(ModelState));
+            //}
             string roles = "u";
             if (request.IsAdmin)
             {
@@ -107,6 +107,13 @@ namespace RESTStoreAPI.Controllers
             };
 
             return Ok(registerResponce);
+        }
+
+        [HttpGet("loginIsFree")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<bool> LoginIsFree(string login)
+        {
+            return await db.Users.AllAsync(x => x.Login != login);
         }
     }
 }

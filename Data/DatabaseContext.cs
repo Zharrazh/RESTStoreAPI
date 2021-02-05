@@ -29,19 +29,7 @@ namespace RESTStoreAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-            //modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-            modelBuilder.Entity<UserDbModel>().HasData(new UserDbModel {
-                Id = 1,
-                Login = "Admin",
-                Name="Admin",
-                IsActive= true,
-                Created = DateTime.UtcNow,
-                Updated = DateTime.UtcNow,
-                PasswordHash = passwordService.SaltHash("1234"),
-                Roles = "au" 
-            });
-
+            modelBuilder.ApplyConfiguration(new UserConfiguration(passwordService));
         }
     }
 }

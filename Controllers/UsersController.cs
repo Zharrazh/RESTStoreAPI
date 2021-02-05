@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using RESTStoreAPI.Data;
 using RESTStoreAPI.Models.Common;
 using RESTStoreAPI.Models.User;
+using RESTStoreAPI.Models.User.Update;
 using RESTStoreAPI.Setup.Sieve;
 using RESTStoreAPI.Utils.Constants;
 using Sieve.Models;
@@ -30,7 +31,19 @@ namespace RESTStoreAPI.Controllers
             this.sieveProcessor = sieveProcessor;
             this.mapper = mapper;
         }
-        
+
+        [HttpGet("{id:int}")]
+        [Authorize(Roles = RoleConstants.AdminRoleName)]
+        [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult Get([FromRoute] int id)
+        {
+            var userDbModel = db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (userDbModel == null)
+                return NotFound();
+            return Ok(mapper.Map<UserFullInfoResponce>(userDbModel));
+        }
+
         [HttpGet]
         [Authorize(Roles = RoleConstants.AdminRoleName)]
         [ProducesResponseType(typeof(PageResponce<UserFullInfoResponce>), StatusCodes.Status200OK)]
@@ -41,5 +54,26 @@ namespace RESTStoreAPI.Controllers
             var paginationResult = sieveProcessor.ApplyOrderingAndPagination(sieveModel, result);
             return Ok(mapper.Map<PageResponce<UserFullInfoResponce>>(paginationResult));
         }
+
+        [HttpPut("{id:int}")]
+        [Authorize(Roles = RoleConstants.AdminRoleName)]
+        [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BadRequestType), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UserUpdateRequest request)
+        {
+            var updatedUserDb = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (updatedUserDb == null)
+            {
+                return NotFound();
+            }
+
+            mapper.Map(request, updatedUserDb);
+
+            await db.SaveChangesAsync();
+
+            return Ok(mapper.Map<UserFullInfoResponce>(updatedUserDb));
+        }
+
     }
 }
