@@ -60,7 +60,7 @@ namespace RESTStoreAPI.Controllers
         [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BadRequestType), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UserUpdateRequest request)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UserUpdateRequest request)
         {
             var updatedUserDb = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
             if (updatedUserDb == null)

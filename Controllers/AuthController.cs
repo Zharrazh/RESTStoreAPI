@@ -53,6 +53,8 @@ namespace RESTStoreAPI.Controllers
                 return BadRequest(new BadRequestType(ModelState));
             }
 
+            userDB.LastLoginDate = DateTime.UtcNow;
+            await db.SaveChangesAsync();
             var tokenInfo = authService.GetToken(userDB);
 
             var tokenInfoResponce = mapper.Map<TokenInfoResponce>(tokenInfo);
@@ -64,10 +66,6 @@ namespace RESTStoreAPI.Controllers
         [ProducesResponseType(typeof (BadRequestType),StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register(RegisterRequest request, [FromServices] IAuthService authService)
         {
-            //if(await db.Users.AnyAsync(x=> x.Login == request.Login)){
-            //    ModelState.AddModelError("login", "A user with this login already exists");
-            //    return BadRequest(new BadRequestType(ModelState));
-            //}
             string roles = "u";
             if (request.IsAdmin)
             {
@@ -87,6 +85,7 @@ namespace RESTStoreAPI.Controllers
                 PasswordHash = passwordService.SaltHash(request.Password),
                 Created = DateTime.UtcNow,
                 Updated = DateTime.UtcNow,
+                LastLoginDate = DateTime.UtcNow,
                 Roles = roles,
                 IsActive = true
             };
