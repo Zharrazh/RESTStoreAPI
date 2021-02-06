@@ -25,11 +25,15 @@ namespace RESTStoreAPI.Controllers
         private readonly DatabaseContext db;
         private readonly ISieveProcessor sieveProcessor;
         private readonly IMapper mapper;
-        public UsersController(DatabaseContext db, ISieveProcessor sieveProcessor, IMapper mapper)
+        private readonly IAuthService authService;
+        private readonly IPasswordService passwordService;
+        public UsersController(DatabaseContext db, ISieveProcessor sieveProcessor, IMapper mapper, IAuthService authService, IPasswordService passwordService)
         {
             this.db = db;
             this.sieveProcessor = sieveProcessor;
             this.mapper = mapper;
+            this.authService = authService;
+            this.passwordService = passwordService;
         }
 
         [HttpGet("{id:int}")]
@@ -73,6 +77,30 @@ namespace RESTStoreAPI.Controllers
             await db.SaveChangesAsync();
 
             return Ok(mapper.Map<UserFullInfoResponce>(updatedUserDb));
+        }
+
+        [HttpPut("{id:int}/updatePassword")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BadRequestType), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdatePassword([FromRoute] int id, [FromBody] UserUpdatePasswordRequest request)
+        {
+            var updatedUser = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (updatedUser == null)
+            {
+                return NotFound();
+            }
+            if (!authService.IsAuthUser(updatedUser) && !authService.AuthUserInRole(Roles.AdminRoleName))
+            {
+                return Forbid();
+            }
+
+            updatedUser.PasswordHash = passwordService.SaltHash(request.NewPassword);
+            updatedUser.Updated = DateTime.UtcNow;
+
+            await db.SaveChangesAsync();
+            return Ok();
         }
 
     }

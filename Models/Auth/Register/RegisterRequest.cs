@@ -11,11 +11,14 @@ namespace RESTStoreAPI.Models.Auth.Register
     public class RegisterRequest
     {
         [Required]
+        [StringLength(50)]
         public string Name { get; set; }
         [Required]
+        [StringLength(50)]
         [LoginIsFree]
         public string Login { get; set; }
         [Required]
+        [StringLength(50)]
         public string Password { get; set; }
 
         public bool IsAdmin { get; set; } = false;

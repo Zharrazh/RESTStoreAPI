@@ -20,6 +20,10 @@ namespace RESTStoreAPI.Services
     {
         TokenInfo GetToken(UserDbModel userDbModel);
         public Task<UserDbModel> GetAuthUserAsync();
+
+        public bool IsAuthUser(UserDbModel userDbModel);
+
+        public bool AuthUserInRole(string roleName);
     }
     public class AuthService : IAuthService
     {
@@ -72,6 +76,22 @@ namespace RESTStoreAPI.Services
 
         }
 
+        public bool IsAuthUser(UserDbModel userDbModel)
+        {
+
+            if (ctx.User?.Identity?.Name == null)
+                return false;
+            else
+            {
+                return userDbModel.Login == ctx.User?.Identity?.Name;
+            }
+        }
+
+        public bool AuthUserInRole(string roleName)
+        {
+            return ctx.User.IsInRole(roleName);
+        }
+
         private ClaimsIdentity GetClaimsIdentity (UserDbModel user)
         {
             var claims = new List<Claim>
@@ -88,6 +108,8 @@ namespace RESTStoreAPI.Services
 
             return new ClaimsIdentity(claims);
         }
+
+        
     }
 
     public class TokenInfo

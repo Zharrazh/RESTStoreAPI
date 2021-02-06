@@ -15,28 +15,14 @@ namespace RESTStoreAPI.Setup.AutoMapper
     {
         public UserProfile()
         {
-            CreateMap<UserDbModel, UserFullInfoResponce>().ForMember(x=>x.Roles, opt => opt.MapFrom<RoleStringToRoleListResolver>());
+            CreateMap<UserDbModel, UserFullInfoResponce>()
+                .ForMember(x=>x.Roles, opt => opt.MapFrom<RoleStringToRoleListResolver>());
 
             CreateMap<UserUpdateRequest, UserDbModel>()
-                .ForMember(x => x.Roles, opt => opt.MapFrom<RoleListToRoleStringResolver>())
-                .ForMember(x=> x.PasswordHash, opt=> opt.MapFrom<SaltHashResolver>());
+                .ForMember(x => x.Roles, opt => opt.MapFrom<RoleListToRoleStringResolver>());
         }
     }
 
-    class SaltHashResolver : IValueResolver<UserUpdateRequest, UserDbModel, string>
-    {
-        private readonly IPasswordService passwordService;
-
-        public SaltHashResolver(IPasswordService passwordService)
-        {
-            this.passwordService = passwordService;
-        }
-
-        public string Resolve(UserUpdateRequest source, UserDbModel destination, string destMember, ResolutionContext context)
-        {
-            return passwordService.SaltHash(source.Password);
-        }
-    }
 
     class RoleStringToRoleListResolver : IValueResolver<UserDbModel, UserFullInfoResponce, List<string>>
     {

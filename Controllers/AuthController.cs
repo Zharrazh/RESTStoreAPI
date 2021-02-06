@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -107,11 +108,12 @@ namespace RESTStoreAPI.Controllers
             return Ok(registerResponce);
         }
 
-        [HttpGet("loginIsFree")]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<bool> LoginIsFree(string login)
+        [HttpGet("me")]
+        [Authorize]
+        [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Me()
         {
-            return await db.Users.AllAsync(x => x.Login != login);
+            return Ok(mapper.Map<UserFullInfoResponce>(await authService.GetAuthUserAsync()));
         }
     }
 }
