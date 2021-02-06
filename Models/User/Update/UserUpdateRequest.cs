@@ -16,9 +16,6 @@ namespace RESTStoreAPI.Models.User.Update
         [AvailableRoleStrings]
         public List<string> Roles { get; set; }
         [Required]
-        [MaxLength(50)]
-        public string Password { get; set; }
-        [Required]
         public bool IsActive { get; set; }
 
     }
