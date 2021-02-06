@@ -26,13 +26,15 @@ namespace RESTStoreAPI.Services
         private readonly AuthConfigModel authConfig;
         private readonly HttpContext ctx;
         private readonly DatabaseContext db;
+        private readonly IRoleService roleService;
 
 
-        public AuthService(IConfiguration configuration, DatabaseContext db, IHttpContextAccessor ctxAcc)
+        public AuthService(IConfiguration configuration, DatabaseContext db, IHttpContextAccessor ctxAcc, IRoleService roleService)
         {
             authConfig = configuration.GetSection("Auth").Get<AuthConfigModel>();
             ctx = ctxAcc.HttpContext!;
             this.db = db;
+            this.roleService = roleService;
         }
 
         public TokenInfo GetToken(UserDbModel userDbModel)
@@ -70,7 +72,7 @@ namespace RESTStoreAPI.Services
 
         }
 
-        private static ClaimsIdentity GetClaimsIdentity (UserDbModel user)
+        private ClaimsIdentity GetClaimsIdentity (UserDbModel user)
         {
             var claims = new List<Claim>
             {
@@ -79,7 +81,7 @@ namespace RESTStoreAPI.Services
                 new Claim(ClaimTypes.GivenName, user.Name)
             };
 
-            List<string> roleNames = RoleUtils.GetRoleList(user.Roles);
+            List<string> roleNames = roleService.GetRoleNames(user.Roles);
 
             foreach (var role in roleNames)
                 claims.Add(new Claim(ClaimTypes.Role, role));

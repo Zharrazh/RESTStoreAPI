@@ -7,8 +7,8 @@ using RESTStoreAPI.Data;
 using RESTStoreAPI.Models.Common;
 using RESTStoreAPI.Models.User;
 using RESTStoreAPI.Models.User.Update;
+using RESTStoreAPI.Services;
 using RESTStoreAPI.Setup.Sieve;
-using RESTStoreAPI.Utils.Constants;
 using Sieve.Models;
 using Sieve.Services;
 using System;
@@ -33,7 +33,7 @@ namespace RESTStoreAPI.Controllers
         }
 
         [HttpGet("{id:int}")]
-        [Authorize(Roles = RoleConstants.AdminRoleName)]
+        [Authorize(Roles = Roles.AdminRoleName)]
         [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Get([FromRoute] int id)
@@ -45,7 +45,7 @@ namespace RESTStoreAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = RoleConstants.AdminRoleName)]
+        [Authorize(Roles = Roles.AdminRoleName)]
         [ProducesResponseType(typeof(PageResponce<UserFullInfoResponce>), StatusCodes.Status200OK)]
         public IActionResult Get([FromQuery]SieveModel sieveModel)
         {
@@ -56,7 +56,7 @@ namespace RESTStoreAPI.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = RoleConstants.AdminRoleName)]
+        [Authorize(Roles = Roles.AdminRoleName)]
         [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BadRequestType), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

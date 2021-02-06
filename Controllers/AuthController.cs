@@ -12,7 +12,6 @@ using RESTStoreAPI.Models.Common;
 using RESTStoreAPI.Models.User;
 using RESTStoreAPI.Services;
 using RESTStoreAPI.Utils;
-using RESTStoreAPI.Utils.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,14 +63,14 @@ namespace RESTStoreAPI.Controllers
         [HttpPost("registration")]
         [ProducesResponseType(typeof (RegisterResponce),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof (BadRequestType),StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register(RegisterRequest request, [FromServices] IAuthService authService)
+        public async Task<IActionResult> Register(RegisterRequest request, [FromServices] IAuthService authService, [FromServices] IRoleService roleService)
         {
             string roles = "u";
             if (request.IsAdmin)
             {
-                if (HttpContext.User.IsInRole(RoleConstants.AdminRoleName))
+                if (HttpContext.User.IsInRole(Roles.AdminRoleName))
                 {
-                    roles += "a";
+                    roles += roleService.GetRoleKey(Roles.AdminRoleName);
                 }
                 else
                 {

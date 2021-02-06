@@ -15,10 +15,10 @@ namespace RESTStoreAPI.Setup.AutoMapper
     {
         public UserProfile()
         {
-            CreateMap<UserDbModel, UserFullInfoResponce>().ForMember(x=>x.Roles, opt => opt.MapFrom(x => RoleUtils.GetRoleList(x.Roles)));
+            CreateMap<UserDbModel, UserFullInfoResponce>().ForMember(x=>x.Roles, opt => opt.MapFrom<RoleStringToRoleListResolver>());
 
             CreateMap<UserUpdateRequest, UserDbModel>()
-                .ForMember(x => x.Roles, opt => opt.MapFrom(x => RoleUtils.GetRoleString(x.Roles)))
+                .ForMember(x => x.Roles, opt => opt.MapFrom<RoleListToRoleStringResolver>())
                 .ForMember(x=> x.PasswordHash, opt=> opt.MapFrom<SaltHashResolver>());
         }
     }
@@ -35,6 +35,36 @@ namespace RESTStoreAPI.Setup.AutoMapper
         public string Resolve(UserUpdateRequest source, UserDbModel destination, string destMember, ResolutionContext context)
         {
             return passwordService.SaltHash(source.Password);
+        }
+    }
+
+    class RoleStringToRoleListResolver : IValueResolver<UserDbModel, UserFullInfoResponce, List<string>>
+    {
+        private readonly IRoleService roleService;
+
+        public RoleStringToRoleListResolver(IRoleService roleService)
+        {
+            this.roleService = roleService;
+        }
+
+        public List<string> Resolve(UserDbModel source, UserFullInfoResponce destination, List<string> destMember, ResolutionContext context)
+        {
+            return roleService.GetRoleNames(source.Roles);
+        }
+    }
+
+    class RoleListToRoleStringResolver : IValueResolver<UserUpdateRequest, UserDbModel, string>
+    {
+        private readonly IRoleService roleService;
+
+        public RoleListToRoleStringResolver(IRoleService roleService)
+        {
+            this.roleService = roleService;
+        }
+
+        public string Resolve(UserUpdateRequest source, UserDbModel destination, string destMember, ResolutionContext context)
+        {
+            return roleService.GetRoleKeys(source.Roles);
         }
     }
 }

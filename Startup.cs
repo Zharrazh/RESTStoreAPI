@@ -38,6 +38,7 @@ namespace RESTStoreAPI
 
             services.AddSingleton<IHashService, HashService>();
             services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));
+            services.AddSingleton<IRoleService, RoleService>();
             services.AddScoped<IAuthService, AuthService>();
 
             services.AddSieveStartup(Configuration.GetSection("Sieve"));

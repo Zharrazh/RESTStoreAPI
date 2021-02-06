@@ -1,4 +1,5 @@
 ﻿using RESTStoreAPI.Data;
+using RESTStoreAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace RESTStoreAPI.Utils.ValidationAttributes.User
 {
-    public class AvailableRoleStrings : ValidationAttribute
+    public class AvailableRoleStringsAttribute : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
+            var roleService = validationContext.GetService(typeof(IRoleService)) as IRoleService;
             if (value is List<string> roles)
             {
-                bool isCorrect = roles.All(x => RoleUtils.IsCorrectRoleName(x));
+                bool isCorrect = roles.All(x => roleService.IsCorrectRoleName(x));
                 if (!isCorrect)
                 {
                     return new ValidationResult("The list contains an incorrect role name");
@@ -22,7 +24,7 @@ namespace RESTStoreAPI.Utils.ValidationAttributes.User
             }
             else if (value is string role)
             {
-                if (RoleUtils.IsCorrectRoleName(role))
+                if (roleService.IsCorrectRoleName(role))
                 {
                     return new ValidationResult("Role name is not correct");
                 }
