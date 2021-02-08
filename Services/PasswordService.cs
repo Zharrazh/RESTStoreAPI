@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using RESTStoreAPI.Setup.Config.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,10 +16,10 @@ namespace RESTStoreAPI.Services
     {
         private readonly string salt;
         private readonly IHashService hashService;
-        public PasswordService(IHashService hashService, string salt)
+        public PasswordService(IHashService hashService, IOptionsSnapshot<AuthConfigModel> authConfigModelAcc)
         {
             this.hashService = hashService;
-            this.salt = salt;
+            this.salt = authConfigModelAcc.Value.PasswordSalt;
         }
         public string SaltHash(string password)
         {

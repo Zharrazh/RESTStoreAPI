@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RESTStoreAPI.Data;
 using RESTStoreAPI.Data.DbModels;
@@ -33,9 +34,9 @@ namespace RESTStoreAPI.Services
         private readonly IRoleService roleService;
 
 
-        public AuthService(IConfiguration configuration, DatabaseContext db, IHttpContextAccessor ctxAcc, IRoleService roleService)
+        public AuthService(IOptionsSnapshot<AuthConfigModel> authConfigModelAcc, DatabaseContext db, IHttpContextAccessor ctxAcc, IRoleService roleService)
         {
-            authConfig = configuration.GetSection("Auth").Get<AuthConfigModel>();
+            this.authConfig = authConfigModelAcc.Value;
             ctx = ctxAcc.HttpContext!;
             this.db = db;
             this.roleService = roleService;

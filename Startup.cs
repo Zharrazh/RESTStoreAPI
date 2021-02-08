@@ -36,8 +36,10 @@ namespace RESTStoreAPI
             var authConfig = Configuration.GetSection("Auth").Get<AuthConfigModel>();
             var connectionString = Configuration.GetSection("Connections").GetValue<string>("Default");
 
+            services.Configure<AuthConfigModel>(Configuration.GetSection("Auth"));
+
             services.AddSingleton<IHashService, HashService>();
-            services.AddSingleton<IPasswordService>(x => new PasswordService(x.GetRequiredService<IHashService>(), authConfig.PasswordSalt));
+            services.AddScoped<IPasswordService, PasswordService>();
             services.AddSingleton<IRoleService, RoleService>();
             services.AddScoped<IAuthService, AuthService>();
 
