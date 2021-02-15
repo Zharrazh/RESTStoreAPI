@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace RESTStoreAPI.Models.User.Update
 {
-    public class UserUpdatePasswordRequest
+    public class UserPasswordUpdateRequest
     {
         [Required]
         [StringLength(50)]
         public string NewPassword { get; set; }
     }
 
-    public class UserUpdatePasswordRequestExample : IExamplesProvider<UserUpdatePasswordRequest>
+    public class UserUpdatePasswordRequestExample : IExamplesProvider<UserPasswordUpdateRequest>
     {
-        public UserUpdatePasswordRequest GetExamples()
+        public UserPasswordUpdateRequest GetExamples()
         {
-            var example = new UserUpdatePasswordRequest
+            var example = new UserPasswordUpdateRequest
             {
                 NewPassword = "my_new_password"
             };

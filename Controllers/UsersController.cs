@@ -24,85 +24,98 @@ namespace RESTStoreAPI.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly DatabaseContext db;
-        private readonly ISieveProcessor sieveProcessor;
-        private readonly IMapper mapper;
-        private readonly IAuthService authService;
-        private readonly IPasswordService passwordService;
-        public UsersController(DatabaseContext db, ISieveProcessor sieveProcessor, IMapper mapper, IAuthService authService, IPasswordService passwordService)
+
+        private readonly IUsersAPIService m_usersAPIServicee;
+        public UsersController(IUsersAPIService usersAPIService)
         {
-            this.db = db;
-            this.sieveProcessor = sieveProcessor;
-            this.mapper = mapper;
-            this.authService = authService;
-            this.passwordService = passwordService;
+            m_usersAPIServicee = usersAPIService;
         }
 
         [HttpGet("{id:int}")]
         [Authorize(Roles = Roles.AdminRoleName)]
-        [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Get([FromRoute] int id)
+        [SwaggerOperation(
+            Summary = "Получение информации о пользователе по id"
+            )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Успешное получение информации о пользователе", typeof(UserFullInfoResponce))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Пользователь с таким id не найден")]
+        public async Task<IActionResult> GetAsync([FromRoute] int id)
         {
-            var userDbModel = db.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (userDbModel == null)
+            UserFullInfoResponce result;
+            try
+            {
+                result = await m_usersAPIServicee.GetUserAsync(id);
+            }
+            catch (NotFoundException)
+            {
                 return NotFound();
-            return Ok(mapper.Map<UserFullInfoResponce>(userDbModel));
+            }
+            return Ok(result);
         }
 
         [HttpGet]
         [Authorize(Roles = Roles.AdminRoleName)]
-        [ProducesResponseType(typeof(PageResponce<UserFullInfoResponce>), StatusCodes.Status200OK)]
-        public IActionResult Get([FromQuery]UserSieveModel sieveModel )
+        [SwaggerOperation(
+            Summary = "Получение информации о пользователях постранично с фильтрацией, сортировкой"
+            )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Успешное получение информации о пользователе", typeof(PageResponce<UserFullInfoResponce>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Неправильно заполненая форма sieve", typeof(BadRequestType))]
+        public async Task<IActionResult> GetAsync([FromQuery]UserSieveModel sieveModel )
         {
-            var result = db.Users.AsNoTracking();
-            result = sieveProcessor.ApplySorting(sieveModel, result);
-            var paginationResult = sieveProcessor.ApplyFilteringAndPagination(sieveModel, result);
-            return Ok(mapper.Map<PageResponce<UserFullInfoResponce>>(paginationResult));
+            PageResponce<UserFullInfoResponce> result = await m_usersAPIServicee.GetUsersAsync(sieveModel);
+            return Ok(result);
         }
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = Roles.AdminRoleName)]
-        [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(BadRequestType), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(
+            Summary = "Изменение записи о пользователе"
+            )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Успешное изменение записи о пользователе", typeof(UserFullInfoResponce))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Неправильно заполненая форма sieve", typeof(BadRequestType))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Пользователь с таким id не найден")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UserUpdateRequest request)
         {
-            var updatedUserDb = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (updatedUserDb == null)
+            UserFullInfoResponce result;
+            try
+            {
+                result = await m_usersAPIServicee.UpdateUserAsync(id, request);
+            }
+            catch (NotFoundException)
             {
                 return NotFound();
             }
 
-            mapper.Map(request, updatedUserDb);
+            return Ok(result);
 
-            await db.SaveChangesAsync();
-
-            return Ok(mapper.Map<UserFullInfoResponce>(updatedUserDb));
         }
 
         [HttpPut("{id:int}/updatePassword")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(BadRequestType), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdatePassword([FromRoute] int id, [FromBody] UserUpdatePasswordRequest request)
+        [SwaggerOperation(
+            Summary = "Изменение пароля пользователя"
+            )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Успешное изменение пароля пользователя", typeof(UserFullInfoResponce))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Неправильно заполненая форма изменения пароля", typeof(BadRequestType))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Пользователь с таким id не найден")]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Возникает если пароль пытается изменить не администратор и не владелец аккаутна", typeof(BadRequestType))]
+        public async Task<IActionResult> UpdatePassword([FromRoute] int id, [FromBody] UserPasswordUpdateRequest request)
         {
-            var updatedUser = await db.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (updatedUser == null)
+            UserFullInfoResponce result;
+            try
+            {
+                result = await m_usersAPIServicee.UpdateUserPasswordAsync(id, request);
+            }
+            catch (NotFoundException)
             {
                 return NotFound();
             }
-            if (!authService.IsAuthUser(updatedUser) && !authService.AuthUserInRole(Roles.AdminRoleName))
+            catch (ForbidenPasswordUpdateException)
             {
-                return Forbid();
+                ModelState.AddModelError("", "Only an administrator or account owner can update password");
+                return StatusCode(StatusCodes.Status403Forbidden, new BadRequestType(ModelState));
             }
 
-            updatedUser.PasswordHash = passwordService.SaltHash(request.NewPassword);
-            updatedUser.Updated = DateTime.UtcNow;
-
-            await db.SaveChangesAsync();
-            return Ok();
+            return Ok(result);
         }
 
     }
