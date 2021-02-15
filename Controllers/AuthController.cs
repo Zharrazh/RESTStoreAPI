@@ -28,17 +28,19 @@ namespace RESTStoreAPI.Controllers
             m_authAPIService = authAPIService;
         }
 
+
+
+
         [HttpPost("getToken")]
         [SwaggerOperation(
             Summary = "Получение токена аутентификации и информации о нем"
             )]
         [SwaggerResponse(StatusCodes.Status200OK,"Токен и его описание", typeof(TokenInfoResponce))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Ошибка в логине или пароле", typeof(BadRequestType))]
-        [SwaggerResponse(StatusCodes.Status406NotAcceptable, "Пользователь не активен", typeof(BadRequestType))]
-
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Пользователь не активен", typeof(BadRequestType))]
         public async Task<IActionResult> GetToken(GetTokenRequest request)
         {
-            TokenInfoResponce result = default;
+            TokenInfoResponce result;
             try
             {
                 result = await m_authAPIService.GetTokenAsync(request);
@@ -51,11 +53,14 @@ namespace RESTStoreAPI.Controllers
             catch (UserNotActiveException)
             {
                 ModelState.AddModelError("", "This user is inactive");
-                return StatusCode(StatusCodes.Status406NotAcceptable,new BadRequestType(ModelState));
+                return StatusCode(StatusCodes.Status403Forbidden,new BadRequestType(ModelState));
             }
 
             return Ok(result);
         }
+
+
+
 
         [HttpPost("registration")]
         [SwaggerOperation(
@@ -64,7 +69,7 @@ namespace RESTStoreAPI.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Успешная регистрация нового пользователя", typeof(RegisterResponce))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Неправильно заполненая форма регистрации", typeof(BadRequestType))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Возникает при попытке создать пользователя с правами администратора, без аутентификации пользователя", typeof(BadRequestType))]
-        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Возникает при попытке создать пользователя с правами администратора, пользователем, без прав администратора", typeof(BadRequestType))]
+        [SwaggerResponse(StatusCodes.Status403Forbidden, "Возникает при попытке создать пользователя с правами администратора, пользователем, без прав администратора", typeof(BadRequestType))]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
             RegisterResponce result;
@@ -86,6 +91,9 @@ namespace RESTStoreAPI.Controllers
 
             return Ok(result);
         }
+
+
+
 
         [HttpGet("me")]
         [Authorize]
