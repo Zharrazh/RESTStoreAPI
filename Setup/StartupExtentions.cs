@@ -10,9 +10,12 @@ using RESTStoreAPI.Setup.Config.Models;
 using RESTStoreAPI.Setup.Sieve;
 using Sieve.Models;
 using Sieve.Services;
+using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -52,8 +55,26 @@ namespace RESTStoreAPI.Setup
         }
         public static IServiceCollection AddSwaggerStartup(this IServiceCollection services)
         {
-            return services.AddSwaggerGen(builder =>
+
+            services.AddSwaggerGen(builder =>
             {
+
+
+
+
+                builder.EnableAnnotations();
+
+                builder.ExampleFilters();
+
+                //builder.OperationFilter<AddHeaderOperationFilter>();
+                //builder.OperationFilter<AddResponseHeadersFilter>();
+
+                builder.OperationFilter<AppendAuthorizeToSummaryOperationFilter>(); // Adds "(Auth)" to the summary so that you can see which endpoints have Authorization
+                                                                              // or use the generic method, e.g. c.OperationFilter<AppendAuthorizeToSummaryOperationFilter<MyCustomAttribute>>();
+
+                // add Security information to each operation for OAuth2
+                builder.OperationFilter<SecurityRequirementsOperationFilter>();
+
                 builder.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = @"JWT Authorization header using the Bearer scheme.\n
@@ -65,25 +86,28 @@ namespace RESTStoreAPI.Setup
                     Scheme = "Bearer"
                 });
 
-                builder.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
-                    {
-                      new OpenApiSecurityScheme
-                      {
-                        Reference = new OpenApiReference
-                          {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                          },
-                          Scheme = "oauth2",
-                          Name = "Bearer",
-                          In = ParameterLocation.Header,
+                //builder.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                //{
+                //    {
+                //      new OpenApiSecurityScheme
+                //      {
+                //        Reference = new OpenApiReference
+                //          {
+                //            Type = ReferenceType.SecurityScheme,
+                //            Id = "Bearer"
+                //          },
+                //          Scheme = "oauth2",
+                //          Name = "Bearer",
+                //          In = ParameterLocation.Header,
 
-                        },
-                        new List<string>()
-                      }
-                });
+                //        },
+                //        new List<string>()
+                //      }
+                //});
+
             });
+
+            return services.AddSwaggerExamplesFromAssemblies(Assembly.GetEntryAssembly());
         }
 
         public static IApplicationBuilder UseSwaggerStartup(this IApplicationBuilder app)

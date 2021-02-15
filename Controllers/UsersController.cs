@@ -6,11 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using RESTStoreAPI.Data;
 using RESTStoreAPI.Models.Common;
 using RESTStoreAPI.Models.User;
+using RESTStoreAPI.Models.User.Get;
 using RESTStoreAPI.Models.User.Update;
 using RESTStoreAPI.Services;
 using RESTStoreAPI.Setup.Sieve;
 using Sieve.Models;
 using Sieve.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,11 +53,11 @@ namespace RESTStoreAPI.Controllers
         [HttpGet]
         [Authorize(Roles = Roles.AdminRoleName)]
         [ProducesResponseType(typeof(PageResponce<UserFullInfoResponce>), StatusCodes.Status200OK)]
-        public IActionResult Get([FromQuery]SieveModel sieveModel)
+        public IActionResult Get([FromQuery]UserSieveModel sieveModel )
         {
             var result = db.Users.AsNoTracking();
             result = sieveProcessor.ApplySorting(sieveModel, result);
-            var paginationResult = sieveProcessor.ApplyOrderingAndPagination(sieveModel, result);
+            var paginationResult = sieveProcessor.ApplyFilteringAndPagination(sieveModel, result);
             return Ok(mapper.Map<PageResponce<UserFullInfoResponce>>(paginationResult));
         }
 

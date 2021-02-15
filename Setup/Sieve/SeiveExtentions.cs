@@ -11,13 +11,15 @@ namespace RESTStoreAPI.Setup.Sieve
     {
         public static IQueryable<M> ApplySorting<M> (this ISieveProcessor sieveProcessor, SieveModel sieveModel, IQueryable<M> source)
         {
-            return sieveProcessor.Apply(sieveModel, source, applyPagination: false, applySorting:false);
+            return sieveProcessor.Apply(sieveModel, source, applyPagination: false, applyFiltering:false);
         }
 
-        public static PaginationResult<M> ApplyOrderingAndPagination<M>(this ISieveProcessor sieveProcessor, SieveModel sieveModel, IQueryable<M> source)
+        public static PaginationResult<M> ApplyFilteringAndPagination<M>(this ISieveProcessor sieveProcessor, SieveModel sieveModel, IQueryable<M> source)
         {
-            int totalItems = source.Count();
-            var items = sieveProcessor.Apply(sieveModel, source, applyFiltering: false);
+            
+            var items = sieveProcessor.Apply(sieveModel, source, applySorting: false, applyPagination:false);
+            int totalItems = items.Count();
+            items = sieveProcessor.Apply(sieveModel, items, applySorting: false, applyFiltering:false);
             int itemsInPage = items.Count();
             
             var formatSieveModel = SieveModelPageFormating(sieveModel);

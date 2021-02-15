@@ -11,6 +11,6 @@ namespace RESTStoreAPI.Setup.Config.Models
         public string Audience { get; set; }
         public string Issuer { get; set; }
         public string PasswordSalt { get; set; }
-        public int Expires { get; set; }
+        public int ExpiresMinutes { get; set; }
     }
 }

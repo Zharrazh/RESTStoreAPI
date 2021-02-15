@@ -25,9 +25,13 @@ namespace RESTStoreAPI.Data.DbModels
         [Required]
         [MaxLength(10)]
         public string Roles { get; set; }
+        [Required]
         public bool IsActive { get; set; }
-        public DateTime? LastLoginDate { get; set; }
+        [Required]
+        public DateTime LastLoginDate { get; set; }
+        [Required]
         public DateTime Created { get; set; }
+        [Required]
         public DateTime Updated { get; set; }
     }
 

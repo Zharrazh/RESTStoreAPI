@@ -1,4 +1,6 @@
-﻿using RESTStoreAPI.Utils.ValidationAttributes.User;
+﻿using RESTStoreAPI.Services;
+using RESTStoreAPI.Utils.ValidationAttributes.User;
+using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,5 +20,22 @@ namespace RESTStoreAPI.Models.User.Update
         [Required]
         public bool IsActive { get; set; }
 
+    }
+    public class UserUpdateRequestExample : IExamplesProvider<UserUpdateRequest>
+    {
+        public UserUpdateRequest GetExamples()
+        {
+            var example = new UserUpdateRequest
+            {
+                Name = "my new name",
+                Roles = new List<string>
+                {
+                    Roles.AdminRoleName,
+                    Roles.UserRoleName
+                },
+                IsActive = true
+            };
+            return example;
+        }
     }
 }

@@ -19,51 +19,20 @@ namespace RESTStoreAPI.Services
 {
     public interface IAuthService
     {
-        TokenInfo GetToken(UserDbModel userDbModel);
+        public bool IsAuthUser();
         public Task<UserDbModel> GetAuthUserAsync();
-
         public bool IsAuthUser(UserDbModel userDbModel);
-
         public bool AuthUserInRole(string roleName);
     }
     public class AuthService : IAuthService
     {
-        private readonly AuthConfigModel authConfig;
         private readonly HttpContext ctx;
         private readonly DatabaseContext db;
-        private readonly IRoleService roleService;
 
-
-        public AuthService(IOptionsSnapshot<AuthConfigModel> authConfigModelAcc, DatabaseContext db, IHttpContextAccessor ctxAcc, IRoleService roleService)
+        public AuthService(DatabaseContext db, IHttpContextAccessor ctxAcc)
         {
-            this.authConfig = authConfigModelAcc.Value;
             ctx = ctxAcc.HttpContext!;
             this.db = db;
-            this.roleService = roleService;
-        }
-
-        public TokenInfo GetToken(UserDbModel userDbModel)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authConfig.Key));
-            var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-
-            var claimsIdentity = GetClaimsIdentity(userDbModel);
-            var expires = DateTime.UtcNow.AddMinutes(authConfig.Expires);
-
-            var token = handler.CreateJwtSecurityToken(subject: claimsIdentity,
-                signingCredentials: signingCredentials,
-                audience: authConfig.Audience,
-                issuer: authConfig.Issuer,
-                expires: expires);
-
-            string tokenStr = handler.WriteToken(token);
-
-            return new TokenInfo
-            {
-                Expires = expires,
-                Token = tokenStr
-            };
         }
 
         public async Task<UserDbModel> GetAuthUserAsync()
@@ -88,34 +57,18 @@ namespace RESTStoreAPI.Services
             }
         }
 
+        public bool IsAuthUser()
+        {
+            return ctx.User is not null;
+        }
+
         public bool AuthUserInRole(string roleName)
         {
             return ctx.User.IsInRole(roleName);
         }
 
-        private ClaimsIdentity GetClaimsIdentity (UserDbModel user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Login),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.GivenName, user.Name)
-            };
-
-            List<string> roleNames = roleService.GetRoleNames(user.Roles);
-
-            foreach (var role in roleNames)
-                claims.Add(new Claim(ClaimTypes.Role, role));
-
-            return new ClaimsIdentity(claims);
-        }
-
         
     }
 
-    public class TokenInfo
-    {
-        public string Token { get; set; }
-        public DateTime Expires { get; set; }
-    }
+    
 }

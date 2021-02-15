@@ -1,21 +1,18 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RESTStoreAPI.Data;
-using RESTStoreAPI.Data.DbModels;
 using RESTStoreAPI.Models.Auth;
 using RESTStoreAPI.Models.Auth.GetToken;
 using RESTStoreAPI.Models.Auth.Register;
 using RESTStoreAPI.Models.Common;
 using RESTStoreAPI.Models.User;
 using RESTStoreAPI.Services;
-using RESTStoreAPI.Utils;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 
 namespace RESTStoreAPI.Controllers
@@ -24,96 +21,94 @@ namespace RESTStoreAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly DatabaseContext db;
-        private readonly IAuthService authService;
-        private readonly IPasswordService passwordService;
-        private readonly IMapper mapper;
-        public AuthController(DatabaseContext db,  IAuthService authService, IPasswordService passwordService, IMapper mapper)
+        private readonly IAuthAPIService m_authAPIService;
+
+        public AuthController(IAuthAPIService authAPIService)
         {
-            this.db = db;
-            this.authService = authService;
-            this.passwordService = passwordService;
-            this.mapper = mapper;
+            m_authAPIService = authAPIService;
         }
 
         [HttpPost("getToken")]
-        [ProducesResponseType(typeof(TokenInfoResponce), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(BadRequestType), StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(
+            Summary = "Получение токена аутентификации и информации о нем"
+            )]
+        [SwaggerResponse(StatusCodes.Status200OK,"Токен и его описание", typeof(TokenInfoResponce))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Ошибка в логине или пароле", typeof(BadRequestType))]
+        [SwaggerResponse(StatusCodes.Status406NotAcceptable, "Пользователь не активен", typeof(BadRequestType))]
+
         public async Task<IActionResult> GetToken(GetTokenRequest request)
         {
-            var userDB = await db.Users.FirstOrDefaultAsync(x => x.Login == request.Login && x.PasswordHash== passwordService.SaltHash(request.Password));
-            if (userDB == null)
+            TokenInfoResponce result = default;
+            try
             {
-                ModelState.AddModelError("", "Wrong username or password");
-                return BadRequest(new BadRequestType(ModelState));
+                result = await m_authAPIService.GetTokenAsync(request);
             }
-            if (!userDB.IsActive)
+            catch (WrongLoginOrPasswordException)
             {
-                ModelState.AddModelError("", "You do not have permission to access the service");
-                return BadRequest(new BadRequestType(ModelState));
+                ModelState.AddModelError("", "Wrong login or password");
+                return BadRequest(ModelState);
+            }
+            catch (UserNotActiveException)
+            {
+                ModelState.AddModelError("", "This user is inactive");
+                return StatusCode(StatusCodes.Status406NotAcceptable,new BadRequestType(ModelState));
             }
 
-            userDB.LastLoginDate = DateTime.UtcNow;
-            await db.SaveChangesAsync();
-            var tokenInfo = authService.GetToken(userDB);
-
-            var tokenInfoResponce = mapper.Map<TokenInfoResponce>(tokenInfo);
-            return Ok(tokenInfoResponce);
+            return Ok(result);
         }
 
         [HttpPost("registration")]
-        [ProducesResponseType(typeof (RegisterResponce),StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof (BadRequestType),StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register(RegisterRequest request, [FromServices] IAuthService authService, [FromServices] IRoleService roleService)
+        [SwaggerOperation(
+            Summary = "Регистрация нового пользователя (обычного или админа)"
+            )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Успешная регистрация нового пользователя", typeof(RegisterResponce))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Неправильно заполненая форма регистрации", typeof(BadRequestType))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Возникает при попытке создать пользователя с правами администратора, без аутентификации пользователя", typeof(BadRequestType))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Возникает при попытке создать пользователя с правами администратора, пользователем, без прав администратора", typeof(BadRequestType))]
+        public async Task<IActionResult> Register(RegisterRequest request)
         {
-            string roles = "u";
-            if (request.IsAdmin)
+            RegisterResponce result;
+
+            try
             {
-                if (HttpContext.User.IsInRole(Roles.AdminRoleName))
-                {
-                    roles += roleService.GetRoleKey(Roles.AdminRoleName);
-                }
-                else
-                {
-                    return Forbid();
-                }
+                result = await m_authAPIService.RegisterAsync(request);
             }
-            UserDbModel newUser = new UserDbModel
+            catch (AuthenticationException)
             {
-                Name = request.Name,
-                Login = request.Login,
-                PasswordHash = passwordService.SaltHash(request.Password),
-                Created = DateTime.UtcNow,
-                Updated = DateTime.UtcNow,
-                LastLoginDate = DateTime.UtcNow,
-                Roles = roles,
-                IsActive = true
-            };
-            await db.Users.AddAsync(newUser);
-
-            await db.SaveChangesAsync();
-
-            var tokenInfo = authService.GetToken(newUser);
-
-            var tokenInfoResponce = mapper.Map<TokenInfoResponce>(tokenInfo);
-
-            var userInfoResponce = mapper.Map<UserFullInfoResponce>(newUser);
-
-            var registerResponce = new RegisterResponce
+                ModelState.AddModelError("isAdmin", "Only an administrator can create a user with administrator rights");
+                return Unauthorized(ModelState);
+            }
+            catch (UserNotAdminException)
             {
-                TokenInfo = tokenInfoResponce,
-                UserInfo = userInfoResponce
-            };
+                ModelState.AddModelError("isAdmin", "Only an administrator can create a user with administrator rights");
+                return StatusCode(StatusCodes.Status403Forbidden, new BadRequestType(ModelState));
+            }
 
-            return Ok(registerResponce);
+            return Ok(result);
         }
 
         [HttpGet("me")]
         [Authorize]
-        [ProducesResponseType(typeof(UserFullInfoResponce), StatusCodes.Status200OK)]
+        [SwaggerOperation(
+            Summary = "Получение информации о аутентифицированном пользователе"
+            )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Успешная регистрация нового пользователя", typeof(RegisterResponce))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Возникает если в базе данных не найдена информация о пользователе для таких credentials", typeof(BadRequestType))]
         public async Task<IActionResult> Me()
         {
-            return Ok(mapper.Map<UserFullInfoResponce>(await authService.GetAuthUserAsync()));
+            UserFullInfoResponce result;
+
+            try
+            {
+                result = await m_authAPIService.MeAsync();
+            }
+            catch (InvalidCredentialException)
+            {
+                ModelState.AddModelError("", "No user information found for these credentials");
+                return StatusCode(StatusCodes.Status404NotFound, new BadRequestType(ModelState));
+            }
+
+            return Ok(result);
         }
     }
 }

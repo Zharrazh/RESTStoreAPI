@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,9 @@ namespace RESTStoreAPI.Models.Common
 {
     public class BadRequestType : Dictionary<string, string[]>
     {
+        public BadRequestType() : base()
+        {
+        }
         public BadRequestType(ActionContext context)
         {
             ConstructErrorMessages(context.ModelState);
@@ -41,6 +45,20 @@ namespace RESTStoreAPI.Models.Common
         {
             return string.IsNullOrEmpty(error.ErrorMessage) ?
                 "The input was not walid" : error.ErrorMessage;
+        }
+    }
+
+    public class BadRequestTypeExample : IExamplesProvider<BadRequestType>
+    {
+        public BadRequestType GetExamples()
+        {
+            var example = new BadRequestType
+            {
+                { "name", new[] { "first name error", "second name error" } },
+                { "desc", new[] { "once desc error" } },
+                { "", new[] { "summary error 1", "summary error 2" } }
+            };
+            return example;
         }
     }
 

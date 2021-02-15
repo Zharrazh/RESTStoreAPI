@@ -21,18 +21,22 @@ namespace RESTStoreAPI.Setup.Sieve
 
         protected override SievePropertyMapper MapProperties(SievePropertyMapper mapper)
         {
-            mapper.Property<UserDbModel>(p => p.IsActive)
-                .CanFilter();
             mapper.Property<UserDbModel>(p => p.Login)
                 .CanFilter()
                 .CanSort();
             mapper.Property<UserDbModel>(p => p.Name)
                 .CanFilter()
                 .CanSort();
+            mapper.Property<UserDbModel>(p => p.IsActive)
+                .CanFilter()
+                .CanSort();
             mapper.Property<UserDbModel>(p => p.Created)
                 .CanFilter()
                 .CanSort();
             mapper.Property<UserDbModel>(p => p.Updated)
+                .CanFilter()
+                .CanSort();
+            mapper.Property<UserDbModel>(p => p.LastLoginDate)
                 .CanFilter()
                 .CanSort();
 
