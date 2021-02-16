@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 
 namespace RESTStoreAPI.Data.DbModels
 {
+    [Index(nameof(UserDbModel.Login), IsUnique = true)]
+    [Index(nameof(UserDbModel.PasswordHash))]
     public class UserDbModel
     {
         [Key]
         public int Id { get; set; }
-        
+
         [Required]
         [MaxLength(50)]
         public string Login { get; set; }
@@ -26,13 +28,13 @@ namespace RESTStoreAPI.Data.DbModels
         [Required]
         public bool IsActive { get; set; }
 
-        public virtual UserProfileDbModel Profile { get; set; }
+        public UserProfileDbModel Profile { get; set; }
 
     }
 
+    [Owned]
     public class UserProfileDbModel
     {
-        public int Id { get; set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
@@ -42,8 +44,6 @@ namespace RESTStoreAPI.Data.DbModels
         public DateTime Created { get; set; }
         [Required]
         public DateTime Updated { get; set; }
-        public int UserId { get; set; }
-        public virtual UserDbModel User { get; set; }
 
     }
 
@@ -56,7 +56,6 @@ namespace RESTStoreAPI.Data.DbModels
         }
         void IEntityTypeConfiguration<UserDbModel>.Configure(EntityTypeBuilder<UserDbModel> builder)
         {
-            builder.HasIndex(x => x.Login).IsUnique();
             var now = DateTime.UtcNow;
             builder.HasData(new UserDbModel()
             {
@@ -65,24 +64,15 @@ namespace RESTStoreAPI.Data.DbModels
                 IsActive = true,
                 PasswordHash = passwordService.SaltHash("1234"),
                 Roles = "au"
-            }); 
-        }
-    }
+            });
 
-    public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfileDbModel>
-    {
-        public void Configure(EntityTypeBuilder<UserProfileDbModel> builder)
-        {
-            var now = DateTime.UtcNow;
-            builder.HasData(new UserProfileDbModel()
-            {   
-                Id = 1,
-                UserId = 1,
+            builder.OwnsOne(x => x.Profile).HasData(new
+            {
+                UserDbModelId = 1,
                 Name = "Admin",
                 Created = now,
                 LastLoginDate = now,
                 Updated = now
-                
             });
         }
     }

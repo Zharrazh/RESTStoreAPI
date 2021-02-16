@@ -32,7 +32,6 @@ namespace RESTStoreAPI.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserConfiguration(passwordService));
-            modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
         }
     }
 }
