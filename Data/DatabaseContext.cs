@@ -25,6 +25,7 @@ namespace RESTStoreAPI.Data
         {
             optionsBuilder
                 .UseLazyLoadingProxies();
+            optionsBuilder.LogTo(Console.WriteLine);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
