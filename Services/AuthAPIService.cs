@@ -50,7 +50,7 @@ namespace RESTStoreAPI.Services
                 throw new UserNotActiveException();
             }
 
-            var tokenInfo = m_tokenService.GetToken(userDB.Id, userDB.Login, userDB.Profile.Name, m_roleService.GetRoleNames(userDB.Roles)); //TODO изменьть хрень
+            var tokenInfo = m_tokenService.GetToken(userDB.Id, userDB.Login, m_roleService.GetRoleNames(userDB.Roles));
             var tokenInfoResponce = m_mapper.Map<TokenInfoResponce>(tokenInfo);
 
             userDB.Profile.LastLoginDate = DateTime.UtcNow;
@@ -105,7 +105,7 @@ namespace RESTStoreAPI.Services
 
             await m_db.SaveChangesAsync();
 
-            var tokenInfo = m_tokenService.GetToken(newUser.Id, newUser.Login, newUser.Profile.Name, m_roleService.GetRoleNames(newUser.Roles)); //TODO именить хрень
+            var tokenInfo = m_tokenService.GetToken(newUser.Id, newUser.Login,  m_roleService.GetRoleNames(newUser.Roles));
 
             var tokenInfoResponce = m_mapper.Map<TokenInfoResponce>(tokenInfo);
 

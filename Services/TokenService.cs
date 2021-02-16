@@ -11,7 +11,7 @@ namespace RESTStoreAPI.Services
 {
     public interface ITokenService
     {
-        TokenInfo GetToken(int id, string login, string name, List<string> roles);
+        TokenInfo GetToken(int id, string login, List<string> roles);
     }
     public class TokenService : ITokenService
     {
@@ -20,13 +20,13 @@ namespace RESTStoreAPI.Services
         {
             m_authConfig = authConfigModelAcc.Value;
         }
-        public TokenInfo GetToken(int id, string login, string name, List<string> roles)
+        public TokenInfo GetToken(int id, string login,  List<string> roles)
         {
             var handler = new JwtSecurityTokenHandler();
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(m_authConfig.Key));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
 
-            var claimsIdentity = GetClaimsIdentity(id, login, name, roles);
+            var claimsIdentity = GetClaimsIdentity(id, login, roles);
             var expires = DateTime.UtcNow.AddMinutes(m_authConfig.ExpiresMinutes);
 
             var token = handler.CreateJwtSecurityToken(subject: claimsIdentity,
@@ -44,13 +44,12 @@ namespace RESTStoreAPI.Services
             };
         }
 
-        private static ClaimsIdentity GetClaimsIdentity(int id, string login, string name, List<string> roles)
+        private static ClaimsIdentity GetClaimsIdentity(int id, string login, List<string> roles)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, login),
-                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-                new Claim(ClaimTypes.GivenName, name)
+                new Claim(ClaimTypes.NameIdentifier, id.ToString())
             };
 
             foreach (var role in roles)
