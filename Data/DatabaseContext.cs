@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using RESTStoreAPI.Data.DbModels;
 using RESTStoreAPI.Services;
 using System;
@@ -25,12 +26,13 @@ namespace RESTStoreAPI.Data
         {
             optionsBuilder
                 .UseLazyLoadingProxies();
-            optionsBuilder.LogTo(Console.WriteLine);
+            optionsBuilder.LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuted });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserConfiguration(passwordService));
+            modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
         }
     }
 }

@@ -13,9 +13,7 @@ namespace RESTStoreAPI.Data.DbModels
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        [MaxLength(50)]
-        public string Name { get; set; }
+        
         [Required]
         [MaxLength(50)]
         public string Login { get; set; }
@@ -27,12 +25,26 @@ namespace RESTStoreAPI.Data.DbModels
         public string Roles { get; set; }
         [Required]
         public bool IsActive { get; set; }
+
+        public virtual UserProfileDbModel Profile { get; set; }
+
+    }
+
+    public class UserProfileDbModel
+    {
+        public int Id { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string Name { get; set; }
         [Required]
         public DateTime LastLoginDate { get; set; }
         [Required]
         public DateTime Created { get; set; }
         [Required]
         public DateTime Updated { get; set; }
+        public int UserId { get; set; }
+        public virtual UserDbModel User { get; set; }
+
     }
 
     public class UserConfiguration : IEntityTypeConfiguration<UserDbModel>
@@ -45,16 +57,32 @@ namespace RESTStoreAPI.Data.DbModels
         void IEntityTypeConfiguration<UserDbModel>.Configure(EntityTypeBuilder<UserDbModel> builder)
         {
             builder.HasIndex(x => x.Login).IsUnique();
-            builder.HasData(new UserDbModel
+            var now = DateTime.UtcNow;
+            builder.HasData(new UserDbModel()
             {
                 Id = 1,
                 Login = "Admin",
-                Name = "Admin",
                 IsActive = true,
-                Created = DateTime.UtcNow,
-                Updated = DateTime.UtcNow,
                 PasswordHash = passwordService.SaltHash("1234"),
                 Roles = "au"
+            }); 
+        }
+    }
+
+    public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfileDbModel>
+    {
+        public void Configure(EntityTypeBuilder<UserProfileDbModel> builder)
+        {
+            var now = DateTime.UtcNow;
+            builder.HasData(new UserProfileDbModel()
+            {   
+                Id = 1,
+                UserId = 1,
+                Name = "Admin",
+                Created = now,
+                LastLoginDate = now,
+                Updated = now
+                
             });
         }
     }

@@ -15,17 +15,24 @@ namespace RESTStoreAPI.Models.User
         [Required]
         public int Id { get; set; }
         [Required]
-        public string Name { get; set; }
-        [Required]
         public string Login { get; set; }
         [Required]
         public List<string> Roles { get; set; }
+
         [Required]
-        public DateTime Created { get; set; }
-        [Required]
-        public DateTime Updated { get; set; }
-        [Required]
-        public DateTime LastLoginDate { get; set; }
+        public UserProfileFullInfoResponse Profile { get; set; }
+
+        public class UserProfileFullInfoResponse
+        {
+            [Required]
+            public string Name { get; set; }
+            [Required]
+            public DateTime Created { get; set; }
+            [Required]
+            public DateTime Updated { get; set; }
+            [Required]
+            public DateTime LastLoginDate { get; set; }
+        }
     }
 
 
@@ -38,11 +45,15 @@ namespace RESTStoreAPI.Models.User
             {
                 Id = 1337,
                 Login = "Login",
-                Name = "Вася Пупкин",
                 Roles = new List<string>{Roles.AdminRoleName, Roles.UserRoleName},
-                Created = now,
-                Updated =now,
-                LastLoginDate= now
+                
+                Profile = new UserFullInfoResponce.UserProfileFullInfoResponse
+                {
+                    Name = "Вася Пупкин",
+                    Created = now,
+                    Updated = now,
+                    LastLoginDate = now
+                }
             };
             return example;
         }

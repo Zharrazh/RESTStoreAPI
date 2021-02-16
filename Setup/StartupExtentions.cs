@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RESTStoreAPI.Models.Common;
@@ -11,6 +14,7 @@ using RESTStoreAPI.Setup.Sieve;
 using Sieve.Models;
 using Sieve.Services;
 using Swashbuckle.AspNetCore.Filters;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -70,21 +74,44 @@ namespace RESTStoreAPI.Setup
                 //builder.OperationFilter<AddResponseHeadersFilter>();
 
                 builder.OperationFilter<AppendAuthorizeToSummaryOperationFilter>(); // Adds "(Auth)" to the summary so that you can see which endpoints have Authorization
-                                                                              // or use the generic method, e.g. c.OperationFilter<AppendAuthorizeToSummaryOperationFilter<MyCustomAttribute>>();
+                                                                                    // or use the generic method, e.g. c.OperationFilter<AppendAuthorizeToSummaryOperationFilter<MyCustomAttribute>>();
 
                 // add Security information to each operation for OAuth2
-                builder.OperationFilter<SecurityRequirementsOperationFilter>();
 
-                builder.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                var jwtSecurityScheme = new OpenApiSecurityScheme
                 {
-                    Description = @"JWT Authorization header using the Bearer scheme.\n
-                      Enter 'Bearer' [space] and then your token in the text input below.\n
-                      Example: 'Bearer 12345abcdef'",
-                    Name = "Authorization",
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    Name = "JWT Authentication",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
+                    Type = SecuritySchemeType.Http,
+                    Description = @"Put <strong>ONLY</strong> your JWT Bearer token on textbox below!</br>
+                                    It add in headers ""Auhorization: Bearer your_token""",
+
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+
+                builder.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+                builder.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        { jwtSecurityScheme, Array.Empty<string>() }
+                    });
+
+                //builder.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                //{
+                //    Description = @"JWT Authorization header using the Bearer scheme.
+                //      Enter 'Bearer' [space] and then your token in the text input below.
+                //      Example: 'Bearer 12345abcdef'",
+                //    Name = "Authorization",
+                //    In = ParameterLocation.Header,
+                //    Type = SecuritySchemeType.ApiKey,
+                //    Scheme = "Bearer"
+                //});
 
                 //builder.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 //{
@@ -101,7 +128,7 @@ namespace RESTStoreAPI.Setup
                 //          In = ParameterLocation.Header,
 
                 //        },
-                //        new List<string>()
+                //        Array.Empty<string>()
                 //      }
                 //});
 
@@ -143,4 +170,6 @@ namespace RESTStoreAPI.Setup
             });
         }
     }
+
+    
 }

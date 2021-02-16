@@ -42,7 +42,7 @@ namespace RESTStoreAPI.Services
         }
         public async Task<UserFullInfoResponce> GetUserAsync(int id)
         {
-            var userDbModel = await m_db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var userDbModel = await m_db.Users.Include(x=> x.Profile).FirstOrDefaultAsync(x => x.Id == id);
             if (userDbModel is null)
                 throw new NotFoundException();
 
@@ -51,7 +51,7 @@ namespace RESTStoreAPI.Services
 
         public Task<PageResponce<UserFullInfoResponce>> GetUsersAsync(UserSieveModel sieveModel)
         {
-            var result = m_db.Users.AsNoTracking();
+            var result = m_db.Users.Include(x=> x.Profile).AsNoTracking();
             result = m_sieveProcessor.ApplySorting(sieveModel, result);
             var paginationResult = m_sieveProcessor.ApplyFilteringAndPagination(sieveModel, result);
             return Task.FromResult(m_mapper.Map<PageResponce<UserFullInfoResponce>>(paginationResult));
@@ -59,7 +59,7 @@ namespace RESTStoreAPI.Services
 
         public async Task<UserFullInfoResponce> UpdateUserAsync(int id ,UserUpdateRequest request)
         {
-            var updatedUserDb = await m_db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var updatedUserDb = await m_db.Users.Include(x=> x.Profile).FirstOrDefaultAsync(x => x.Id == id);
             if (updatedUserDb is null)
                 throw new NotFoundException();
                 
@@ -73,7 +73,7 @@ namespace RESTStoreAPI.Services
 
         public async Task<UserFullInfoResponce> UpdateUserPasswordAsync(int id, UserPasswordUpdateRequest request)
         {
-            var updatedUser = await m_db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var updatedUser = await m_db.Users.Include(x => x.Profile).FirstOrDefaultAsync(x => x.Id == id);
             if (updatedUser is null)
                 throw new NotFoundException();
 
@@ -81,7 +81,7 @@ namespace RESTStoreAPI.Services
                 throw new ForbidenPasswordUpdateException();
 
             updatedUser.PasswordHash = m_passwordService.SaltHash(request.NewPassword);
-            updatedUser.Updated = DateTime.UtcNow;
+            updatedUser.Profile.Updated = DateTime.UtcNow;
 
             await m_db.SaveChangesAsync();
             return m_mapper.Map<UserFullInfoResponce>(updatedUser);

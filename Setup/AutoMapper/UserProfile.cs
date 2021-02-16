@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static RESTStoreAPI.Models.User.UserFullInfoResponce;
 
 namespace RESTStoreAPI.Setup.AutoMapper
 {
@@ -16,10 +17,11 @@ namespace RESTStoreAPI.Setup.AutoMapper
         public UserProfile()
         {
             CreateMap<UserDbModel, UserFullInfoResponce>()
-                .ForMember(x=>x.Roles, opt => opt.MapFrom<RoleStringToRoleListResolver>());
-
+                .ForMember(x => x.Roles, opt => opt.MapFrom<RoleStringToRoleListResolver>());
             CreateMap<UserUpdateRequest, UserDbModel>()
-                .ForMember(x => x.Roles, opt => opt.MapFrom<RoleListToRoleStringResolver>());
+                .ForMember(x => x.Roles, opt => opt.MapFrom<RoleListToRoleStringResolver>())
+                .ForPath(x => x.Profile.Name, opt => opt.MapFrom(x => x.Name));
+            CreateMap<UserProfileDbModel, UserProfileFullInfoResponse>().ReverseMap();
         }
     }
 

@@ -24,19 +24,19 @@ namespace RESTStoreAPI.Setup.Sieve
             mapper.Property<UserDbModel>(p => p.Login)
                 .CanFilter()
                 .CanSort();
-            mapper.Property<UserDbModel>(p => p.Name)
+            mapper.Property<UserDbModel>(p => p.Profile.Name).HasName(nameof(UserDbModel.Profile.Name))
                 .CanFilter()
                 .CanSort();
             mapper.Property<UserDbModel>(p => p.IsActive)
                 .CanFilter()
                 .CanSort();
-            mapper.Property<UserDbModel>(p => p.Created)
+            mapper.Property<UserDbModel>(p => p.Profile.Created).HasName(nameof(UserDbModel.Profile.Created))
                 .CanFilter()
                 .CanSort();
-            mapper.Property<UserDbModel>(p => p.Updated)
+            mapper.Property<UserDbModel>(p => p.Profile.Updated).HasName(nameof(UserDbModel.Profile.Updated))
                 .CanFilter()
                 .CanSort();
-            mapper.Property<UserDbModel>(p => p.LastLoginDate)
+            mapper.Property<UserDbModel>(p => p.Profile.LastLoginDate).HasName(nameof(UserDbModel.Profile.LastLoginDate))
                 .CanFilter()
                 .CanSort();
 

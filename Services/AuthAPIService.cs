@@ -40,7 +40,7 @@ namespace RESTStoreAPI.Services
         }
         public async Task<TokenInfoResponce> GetTokenAsync(GetTokenRequest request)
         {
-            var userDB = await m_db.Users.FirstOrDefaultAsync(x => x.Login == request.Login && x.PasswordHash == m_passwordService.SaltHash(request.Password));
+            var userDB = await m_db.Users.Include(x=>x.Profile).FirstOrDefaultAsync(x => x.Login == request.Login && x.PasswordHash == m_passwordService.SaltHash(request.Password));
 
             if (userDB is null)
                 throw new WrongLoginOrPasswordException();
@@ -50,10 +50,10 @@ namespace RESTStoreAPI.Services
                 throw new UserNotActiveException();
             }
 
-            var tokenInfo = m_tokenService.GetToken(userDB.Id, userDB.Login, userDB.Name, m_roleService.GetRoleNames(userDB.Roles));
+            var tokenInfo = m_tokenService.GetToken(userDB.Id, userDB.Login, userDB.Profile.Name, m_roleService.GetRoleNames(userDB.Roles)); //TODO изменьть хрень
             var tokenInfoResponce = m_mapper.Map<TokenInfoResponce>(tokenInfo);
 
-            userDB.LastLoginDate = DateTime.UtcNow;
+            userDB.Profile.LastLoginDate = DateTime.UtcNow;
             await m_db.SaveChangesAsync();
 
             return tokenInfoResponce;
@@ -61,7 +61,7 @@ namespace RESTStoreAPI.Services
 
         public async Task<UserFullInfoResponce> MeAsync()
         {
-            if (m_authService.IsAuthUser())
+            if (!m_authService.IsAuthUser())
                 throw new AuthenticationException();
             var user = await m_authService.GetAuthUserAsync();
 
@@ -88,21 +88,24 @@ namespace RESTStoreAPI.Services
             var nowTime = DateTime.UtcNow;
             UserDbModel newUser = new UserDbModel
             {
-                Name = request.Name,
                 Login = request.Login,
                 PasswordHash = m_passwordService.SaltHash(request.Password),
-                Created = nowTime,
-                Updated = nowTime,
-                LastLoginDate = nowTime,
                 Roles = m_roleService.GetRoleKeys(roles),
-                IsActive = true
+                IsActive = true,
+                Profile = new UserProfileDbModel
+                {
+                    Name = request.Name,
+                    Created = nowTime,
+                    Updated = nowTime,
+                    LastLoginDate = nowTime
+                }
             };
 
             await m_db.Users.AddAsync(newUser);
 
             await m_db.SaveChangesAsync();
 
-            var tokenInfo = m_tokenService.GetToken(newUser.Id, newUser.Login, newUser.Name, m_roleService.GetRoleNames(newUser.Roles));
+            var tokenInfo = m_tokenService.GetToken(newUser.Id, newUser.Login, newUser.Profile.Name, m_roleService.GetRoleNames(newUser.Roles)); //TODO именить хрень
 
             var tokenInfoResponce = m_mapper.Map<TokenInfoResponce>(tokenInfo);
 

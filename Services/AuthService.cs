@@ -41,7 +41,7 @@ namespace RESTStoreAPI.Services
                 return null;
             else
             {
-                return await db.Users.FirstOrDefaultAsync(u => u.Login == ctx.User.Identity.Name);
+                return await db.Users.Include(x=> x.Profile).FirstOrDefaultAsync(u => u.Login == ctx.User.Identity.Name);
             }
 
         }

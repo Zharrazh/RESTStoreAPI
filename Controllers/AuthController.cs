@@ -100,7 +100,7 @@ namespace RESTStoreAPI.Controllers
         [SwaggerOperation(
             Summary = "Получение информации о аутентифицированном пользователе"
             )]
-        [SwaggerResponse(StatusCodes.Status200OK, "Успешная регистрация нового пользователя", typeof(RegisterResponce))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Получена информация о аутентифицированном пользователе", typeof(UserFullInfoResponce))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Возникает если в базе данных не найдена информация о пользователе для таких credentials", typeof(BadRequestType))]
         public async Task<IActionResult> Me()
         {
