@@ -88,6 +88,5 @@ namespace RESTStoreAPI.Services
         }
     }
 
-    public class NotFoundException : Exception { }
     public class ForbidenPasswordUpdateException : Exception { }
 }

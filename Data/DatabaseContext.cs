@@ -13,6 +13,9 @@ namespace RESTStoreAPI.Data
     {
         private readonly IPasswordService passwordService;
         public DbSet<UserDbModel> Users { get; set; }
+        public DbSet<CategoryDbModel> Categories { get; set; }
+        public DbSet<CategoryNodeDbModel> NodeCategories { get; set; }
+        public DbSet<CategoryLeafDbModel> LeafCategories { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options, IPasswordService passwordService) : base(options)
         {
@@ -32,6 +35,7 @@ namespace RESTStoreAPI.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserConfiguration(passwordService));
+            modelBuilder.ApplyConfiguration(new CategoryNodeConfiguration());
         }
     }
 }

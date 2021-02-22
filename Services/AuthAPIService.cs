@@ -123,5 +123,4 @@ namespace RESTStoreAPI.Services
 
     public class WrongLoginOrPasswordException : Exception { }
     public class UserNotActiveException : Exception { }
-    public class UserNotAdminException : Exception { }
 }

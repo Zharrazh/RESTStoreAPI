@@ -45,6 +45,7 @@ namespace RESTStoreAPI
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAuthAPIService, AuthAPIService>();
             services.AddScoped<IUsersAPIService, UsersAPIService>();
+            services.AddScoped<ICategoriesAPIService, CategoriesAPIService>();
 
 
             services.AddSieveStartup(Configuration.GetSection("Sieve"));

@@ -24,7 +24,7 @@ namespace RESTStoreAPI.Models.Auth.GetToken
             return new GetTokenRequest
             {
                 Login ="Admin",
-                Password = "12345"
+                Password = "1234"
             };
         }
     }
