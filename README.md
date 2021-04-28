@@ -8,4 +8,4 @@
 ![alt text](readMeAssets/description_example.png "Пример описания")
 
 Вот как выглядит полное API на данный момоент:
-![alt text](readMeAssets/full_api_view.png "Пример описания"
+![alt text](readMeAssets/full_api_view.png "Пример описания")
