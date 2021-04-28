@@ -17,6 +17,8 @@ namespace RESTStoreAPI.Data
         public DbSet<CategoryNodeDbModel> NodeCategories { get; set; }
         public DbSet<CategoryLeafDbModel> LeafCategories { get; set; }
 
+        public DbSet<ProductDbModel> Products { get; set; }
+
         public DatabaseContext(DbContextOptions<DatabaseContext> options, IPasswordService passwordService) : base(options)
         {
             this.passwordService = passwordService;

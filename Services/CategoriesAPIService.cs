@@ -22,8 +22,7 @@ namespace RESTStoreAPI.Services
         Task<CategoryTreeResponce> GetTreeCategoryAsync();
 
         Task<List<CategoryMinResponce>> GetCategoryPath(int id);
-        Task<CategoryFullResponce> CreateCategoryNodeAsync(CreateCategoryRequest request);
-        Task<CategoryFullResponce> CreateCategoryLeafAsync(CreateCategoryRequest request);
+        Task<CategoryFullResponce> CreateCategoryAsync(CreateCategoryRequest request);
         Task<CategoryFullResponce> UpdateCategoryAsync(int id,UpdateCategoryRequest request);
         Task DeleteCategoryAsync(int id);
     }
@@ -96,8 +95,7 @@ namespace RESTStoreAPI.Services
             return result ;
         }
 
-
-        public async Task<CategoryFullResponce> CreateCategoryNodeAsync(CreateCategoryRequest request)
+        public async Task<CategoryFullResponce> CreateCategoryAsync (CreateCategoryRequest request)
         {
             if (!m_authService.IsAuthUser())
                 throw new AuthenticationException();
@@ -106,6 +104,18 @@ namespace RESTStoreAPI.Services
 
             if (await m_db.Categories.AnyAsync(x => x.Name == request.Name))
                 throw new CategoryNameAlreadyExistException();
+
+            if (request.IsNode)
+            {
+                return await CreateCategoryNodeAsync(request);
+            }
+            else
+            {
+                return await CreateCategoryLeafAsync(request);
+            }
+        }
+        private async Task<CategoryFullResponce> CreateCategoryNodeAsync(CreateCategoryRequest request)
+        {
 
             var newCategoryNode = m_mapper.Map<CategoryNodeDbModel>(request);
 
@@ -127,16 +137,8 @@ namespace RESTStoreAPI.Services
             return m_mapper.Map<CategoryFullResponce>(newCategoryNode);
         }
 
-        public async Task<CategoryFullResponce> CreateCategoryLeafAsync(CreateCategoryRequest request)
+        private async Task<CategoryFullResponce> CreateCategoryLeafAsync(CreateCategoryRequest request)
         {
-            if (!m_authService.IsAuthUser())
-                throw new AuthenticationException();
-            if (!m_authService.AuthUserInRole(Roles.AdminRoleName))
-                throw new UserNotAdminException();
-
-            if (await m_db.Categories.AnyAsync(x => x.Name == request.Name))
-                throw new CategoryNameAlreadyExistException();
-
             var newCategoryLeaf = m_mapper.Map<CategoryLeafDbModel>(request);
 
             if (request.ParentId.HasValue)

@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Utils\ValidationAttributes\Common\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 

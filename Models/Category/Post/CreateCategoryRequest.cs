@@ -11,6 +11,8 @@ namespace RESTStoreAPI.Models.Category.Post
     public class CreateCategoryRequest
     {
         [Required]
+        public bool IsNode { get; set; }
+        [Required]
         public string Name { get; set; }
         [Required]
         public string Description { get; set; }
@@ -24,6 +26,7 @@ namespace RESTStoreAPI.Models.Category.Post
         {
             return new CreateCategoryRequest
             {
+                IsNode = false,
                 Name = "new catgory",
                 Description = "if you want create root category that set parentId == null",
                 ParentId = 1

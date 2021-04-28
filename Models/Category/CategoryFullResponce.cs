@@ -1,4 +1,5 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
+﻿using RESTStoreAPI.Models.Common;
+using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,8 @@ namespace RESTStoreAPI.Models.Category
         [Required]
         public bool IsNode { get; set; }
 
+        public PictureInfoResponce Pic { get; set; }
+
         [SwaggerSchema("null if category is not node")]
         public List<CategoryMinResponce> ChildCategories { get; set; }
     }
@@ -38,6 +41,7 @@ namespace RESTStoreAPI.Models.Category
                 Description = "lalala",
                 IsNode = true,
                 ParentId = 132,
+                Pic = new PictureInfoResponceExample().GetExamples(),
                 ChildCategories = new List<CategoryMinResponce>
                 {
                     new CategoryMinResponce

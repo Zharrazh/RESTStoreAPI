@@ -19,6 +19,8 @@ namespace RESTStoreAPI.Data.DbModels
         public string Description { get; set; }
         public int? ParentId { get; set; }
         public virtual CategoryNodeDbModel Parent { get; set; }
+
+        public virtual PictureInfoDbModel Pic { get; set; }
     }
 
     public class CategoryNodeDbModel : CategoryDbModel

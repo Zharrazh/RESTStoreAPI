@@ -37,14 +37,20 @@ namespace RESTStoreAPI
             var connectionString = Configuration.GetSection("Connections").GetValue<string>("Default");
 
             services.Configure<AuthConfigModel>(Configuration.GetSection("Auth"));
+            services.Configure<FileRepoConfigModel>(Configuration.GetSection("FileRepo"));
 
+            services.AddScoped<IFileRepositoryService, FileRepositoryService>();
             services.AddSingleton<IHashService, HashService>();
             services.AddScoped<IPasswordService, PasswordService>();
             services.AddSingleton<IRoleService, RoleService>();
             services.AddScoped<ITokenService, TokenService>();
+
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAuthAPIService, AuthAPIService>();
+
             services.AddScoped<IUsersAPIService, UsersAPIService>();
+
+            services.AddScoped<ICategoriesFileRepoService, CategoriesFileRepoService>();
             services.AddScoped<ICategoriesAPIService, CategoriesAPIService>();
 
 
@@ -64,7 +70,8 @@ namespace RESTStoreAPI
 
             services.AddHttpContextAccessor();
 
-            
+            services.AddCors();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -77,8 +84,15 @@ namespace RESTStoreAPI
             app.UseSwaggerStartup();
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseCors(builder => {
+                builder.AllowAnyOrigin();
+                builder.AllowAnyHeader();
+                builder.AllowAnyMethod();
+                });
 
             app.UseAuthStartup();
 

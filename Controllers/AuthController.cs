@@ -19,7 +19,7 @@ namespace RESTStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : ApiControllerBase
     {
         private readonly IAuthAPIService m_authAPIService;
 
@@ -48,7 +48,7 @@ namespace RESTStoreAPI.Controllers
             catch (WrongLoginOrPasswordException)
             {
                 ModelState.AddModelError("", "Wrong login or password");
-                return BadRequest(ModelState);
+                return ValidationProblem();
             }
             catch (UserNotActiveException)
             {

@@ -27,6 +27,10 @@ namespace RESTStoreAPI.Models.Common
             foreach (var keyModelStatePair in modelState)
             {
                 var key = keyModelStatePair.Key;
+                if (key != string.Empty && char.IsUpper(key[0]))
+                {
+                    key = char.ToLower(key[0]) + key.Substring(1);
+                }
                 var errors = keyModelStatePair.Value.Errors;
                 if (errors != null && errors.Count > 0)
                 {

@@ -6,6 +6,9 @@
 ##Db files
 data.db*
 
+##wwwroot
+wwwroot
+
 # User-specific files
 *.rsuser
 *.suo

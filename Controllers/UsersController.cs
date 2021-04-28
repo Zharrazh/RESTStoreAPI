@@ -22,7 +22,7 @@ namespace RESTStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController : ApiControllerBase
     {
 
         private readonly IUsersAPIService m_usersAPIServicee;
