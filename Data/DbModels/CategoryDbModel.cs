@@ -30,6 +30,7 @@ namespace RESTStoreAPI.Data.DbModels
 
     public class CategoryLeafDbModel : CategoryNodeDbModel
     {
+        public virtual List<ProductDbModel> Products { get; set; } = new List<ProductDbModel>();
     }
 
     public class CategoryNodeConfiguration : IEntityTypeConfiguration<CategoryNodeDbModel>

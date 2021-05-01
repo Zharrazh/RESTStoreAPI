@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RESTStoreAPI.Models.Common;
@@ -14,14 +11,9 @@ using RESTStoreAPI.Setup.Sieve;
 using Sieve.Models;
 using Sieve.Services;
 using Swashbuckle.AspNetCore.Filters;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 
 namespace RESTStoreAPI.Setup
@@ -48,7 +40,7 @@ namespace RESTStoreAPI.Setup
                     options.TokenValidationParameters.ValidateLifetime = true;
                     options.TokenValidationParameters.ClockSkew = TimeSpan.Zero;
                 });
-            
+
             return services.AddAuthorization();
 
         }
@@ -62,9 +54,7 @@ namespace RESTStoreAPI.Setup
 
             services.AddSwaggerGen(builder =>
             {
-
-
-
+                builder.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.RelativePath}");
 
                 builder.EnableAnnotations();
 
@@ -132,6 +122,9 @@ namespace RESTStoreAPI.Setup
                 //      }
                 //});
 
+                
+
+
             });
 
             return services.AddSwaggerExamplesFromAssemblies(Assembly.GetEntryAssembly());
@@ -171,5 +164,5 @@ namespace RESTStoreAPI.Setup
         }
     }
 
-    
+
 }

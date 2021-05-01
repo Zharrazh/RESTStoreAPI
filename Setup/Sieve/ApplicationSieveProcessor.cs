@@ -40,6 +40,12 @@ namespace RESTStoreAPI.Setup.Sieve
                 .CanFilter()
                 .CanSort();
 
+
+            mapper.Property<ProductDbModel>(p => p.Name).CanFilter().CanFilter();
+            mapper.Property<ProductDbModel>(p => p.Price).CanFilter().CanSort();
+            mapper.Property<ProductDbModel>(p => p.CategoryId).CanFilter();
+
+
             return mapper;
         }
     }

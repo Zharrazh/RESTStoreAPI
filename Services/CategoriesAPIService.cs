@@ -180,15 +180,6 @@ namespace RESTStoreAPI.Services
             m_mapper.Map(request, updatedCategoryDb);
 
             await m_db.SaveChangesAsync();
-            //TODO удалить комменты
-
-
-            //if (updatedCategoryDb is CategoryNodeDbModel)
-            //    return m_mapper.Map<CategoryNodeFullResponce>(updatedCategoryDb);
-            //else if (updatedCategoryDb is CategoryLeafDbModel)
-            //    return m_mapper.Map<CategoryLeafFullResponce>(updatedCategoryDb);
-            //else
-            //    return m_mapper.Map<CategoryFullResponce>(updatedCategoryDb);
 
             return m_mapper.Map<CategoryFullResponce>(updatedCategoryDb);
         }

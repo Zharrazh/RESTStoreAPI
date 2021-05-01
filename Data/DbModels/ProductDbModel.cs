@@ -17,6 +17,8 @@ namespace RESTStoreAPI.Data.DbModels
         [Required]
         public string Description { get; set; }
 
+        public decimal Price { get; set; }
+
         public int CategoryId { get; set; }
         public virtual CategoryLeafDbModel Category { get; set; }
 

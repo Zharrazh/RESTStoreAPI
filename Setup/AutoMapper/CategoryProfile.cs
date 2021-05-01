@@ -3,10 +3,6 @@ using RESTStoreAPI.Data.DbModels;
 using RESTStoreAPI.Models.Category;
 using RESTStoreAPI.Models.Category.Post;
 using RESTStoreAPI.Models.Category.Update;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RESTStoreAPI.Setup.AutoMapper
 {
@@ -18,7 +14,7 @@ namespace RESTStoreAPI.Setup.AutoMapper
 
             CreateMap<CategoryLeafDbModel, CategoryMinResponce>()
                 .IncludeBase<CategoryDbModel, CategoryMinResponce>()
-                .ForMember(x => x.IsNode, opt => opt.MapFrom(src => false));
+                .ForMember(x => x.IsNode, opt => opt.MapFrom(src => false)).IgnoreAllPropertiesWithAnInaccessibleSetter();
             CreateMap<CategoryNodeDbModel, CategoryMinResponce>()
                 .IncludeBase<CategoryDbModel, CategoryMinResponce>()
                 .ForMember(x => x.IsNode, opt => opt.MapFrom(src => true));
@@ -32,7 +28,8 @@ namespace RESTStoreAPI.Setup.AutoMapper
             CreateMap<CategoryLeafDbModel, CategoryTreeElementResponce>()
                 .IncludeBase<CategoryDbModel, CategoryTreeElementResponce>()
                 .ForMember(x => x.IsNode, opt => opt.MapFrom(src => false))
-                .ForMember(x => x.ChildCategories, opt => opt.Ignore());
+                .ForMember(x => x.ChildCategories, opt => opt.Ignore())
+                .IgnoreAllPropertiesWithAnInaccessibleSetter();
 
 
             CreateMap<CategoryDbModel, CategoryFullResponce>();
@@ -43,14 +40,15 @@ namespace RESTStoreAPI.Setup.AutoMapper
             CreateMap<CategoryLeafDbModel, CategoryFullResponce>()
                 .IncludeBase<CategoryDbModel, CategoryFullResponce>()
                 .ForMember(x => x.IsNode, opt => opt.MapFrom(src => false))
-                .ForMember(x => x.ChildCategories, opt => opt.AllowNull());
+                .ForMember(x => x.ChildCategories, opt => opt.AllowNull())
+                .IgnoreAllPropertiesWithAnInaccessibleSetter(); 
 
 
             CreateMap<CreateCategoryRequest, CategoryNodeDbModel>();
-            CreateMap<CreateCategoryRequest, CategoryLeafDbModel>();
+            CreateMap<CreateCategoryRequest, CategoryLeafDbModel>().IgnoreAllPropertiesWithAnInaccessibleSetter();
             CreateMap<UpdateCategoryRequest, CategoryDbModel>();
             CreateMap<UpdateCategoryRequest, CategoryNodeDbModel>();
-            CreateMap<UpdateCategoryRequest, CategoryLeafDbModel>();
+            CreateMap<UpdateCategoryRequest, CategoryLeafDbModel>().IgnoreAllPropertiesWithAnInaccessibleSetter();
         }
     }
 }

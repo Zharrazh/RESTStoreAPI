@@ -53,6 +53,9 @@ namespace RESTStoreAPI
             services.AddScoped<ICategoriesFileRepoService, CategoriesFileRepoService>();
             services.AddScoped<ICategoriesAPIService, CategoriesAPIService>();
 
+            services.AddScoped<IProductsFileRepoService, ProductsFileRepoService>();
+            services.AddScoped<IProductsAPIService, ProductsAPIService>();
+
 
             services.AddSieveStartup(Configuration.GetSection("Sieve"));
 

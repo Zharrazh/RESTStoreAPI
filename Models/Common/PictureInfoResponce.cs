@@ -9,6 +9,7 @@ namespace RESTStoreAPI.Models.Common
 {
     public class PictureInfoResponce
     {
+        public int Id { get; set; }
         [Required]
         public string Path { get; set; }
         [Required]
@@ -21,6 +22,7 @@ namespace RESTStoreAPI.Models.Common
         {
             return new PictureInfoResponce
             {
+                Id = 1,
                 FileName = "blaBlaBla-asd123142sad.jpeg",
                 Path = @"example\blaBlaBla-asd123142sad.jpeg"
             };
